@@ -1,0 +1,34 @@
+<!-- views/partials/head.ejs -->
+
+<meta charset="UTF-8" />
+<title>GoFundHer</title>
+
+<!-- CSS (load bootstrap from a CDN) -->
+<link
+  rel="stylesheet"
+  href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+/>
+
+<!-- facebook tags -->
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content="article" />
+<meta property="fb:app_id" content="306939030545293" />
+<meta property="og:site_name" content="GOFUNDHER" />
+<% if (title) { %>
+<meta property="og:title" content="<%= title %>" />
+<%} %> <% if (description) { %>
+<meta property="og:description" content="<%= description %>" />
+<%} %> <% if (image) { %>
+<meta property="og:type" content="image" />
+<meta property="og:image" content="<%= image %>" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<% } %> <% if (url) { %>
+<meta property="og:url" content="<%= url %>" />
+<%} %>
+
+<style>
+  body {
+    padding-top: 50px;
+  }
+</style>

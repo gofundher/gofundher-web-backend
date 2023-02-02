@@ -1,0 +1,27 @@
+<!-- views/pages/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+  <head>
+    <% include ./partials/head %>
+  </head>
+  <script>
+    window.location.href = "<%= projectUrl %>";
+  </script>
+  <body class="container">
+    <header>
+      <%# include ./partials/header #%>
+    </header>
+
+    <main>
+      <div class="jumbotron">
+        <h2>GoFundHer</h2>
+        <br />
+      </div>
+    </main>
+
+    <footer>
+      <% include ../pages/partials/footer %>
+    </footer>
+  </body>
+</html>

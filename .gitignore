@@ -1,0 +1,19 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+# server files
+/node_modules
+/public/images
+/public/images-thumbnail
+/build/static/css
+/build/static/js
+/build/static/media
+/admin
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+.env.remote

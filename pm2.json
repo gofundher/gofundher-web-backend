@@ -1,0 +1,10 @@
+{
+	"apps": [
+		{
+			"name": "gofundher",
+			"script": "npm run build",
+			"args": "start",
+			"watch": false
+		}
+	]
+}

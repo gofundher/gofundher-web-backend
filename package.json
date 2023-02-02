@@ -1,0 +1,50 @@
+{
+  "name": "gofundher-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "NODE_ENV=development  PORT=3002 & nodemon ./bin/www",
+    "build": "NODE_ENV=production PORT=443 node ./bin/www"
+  },
+  "dependencies": {
+    "@bugsnag/js": "^7.16.1",
+    "@bugsnag/plugin-express": "^7.16.1",
+    "bcryptjs": "^2.4.3",
+    "compress-images": "^1.5.8",
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
+    "debug": "~2.6.9",
+    "dotenv-flow": "^3.1.0",
+    "ejs": "~2.5.7",
+    "express": "^4.16.4",
+    "express-rate-limit": "^6.3.0",
+    "express-validator": "^5.3.1",
+    "fs": "0.0.1-security",
+    "gm": "^1.23.1",
+    "http-errors": "~1.6.2",
+    "image-size": "^0.8.3",
+    "jimp": "^0.6.0",
+    "jsonwebtoken": "^8.4.0",
+    "md5": "^2.3.0",
+    "moment-timezone": "^0.5.26",
+    "morgan": "~1.9.0",
+    "multer": "^1.4.1",
+    "mysql2": "^1.6.4",
+    "node-cron": "^2.0.3",
+    "node-excel-export": "^1.4.4",
+    "nodemailer": "^5.1.1",
+    "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-linkedin-oauth2": "^2.0.0",
+    "paypal-ipn": "^3.0.0",
+    "sequelize": "^4.42.0",
+    "stripe": "^6.23.1",
+    "unirest": "^0.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4",
+    "sequelize-cli": "^5.5.1"
+  }
+}
