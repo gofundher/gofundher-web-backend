@@ -22,8 +22,8 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-/*
+//var server = http.createServer(app);
+
 var server = https.createServer(
     {
       key: fs.readFileSync("/etc/nginx/ssl/2022/gofundher.com.key"),
@@ -31,7 +31,7 @@ var server = https.createServer(
     },
     app
   );
-*/
+
 /**
  * Listen on provided port, on all network interfaces.
  */
