@@ -5,6 +5,7 @@
 - Linux
 - Node.js
 - Npm
+- Nginx
 - MySQL
 - SSL certification and key files
 
@@ -33,21 +34,53 @@ Using Putty or XShell to connect AWS EC2 instance that the project will be deplo
 If you have a backup of your database, then you can restore it following command line.
 > mysql -h localhost -u root -p gofundher < [backupfile]
 
-## Setup SSL
+## Configure Nginx
 Navigate into gofundher-web repository in the server. For example,
-> cd /home/ubuntu/gofundher-web
+> cd /etc/nginx
 
-> sudo nano bin/www
+> sudo nano sites-enabled/default
 
-There, you can find following lines:
+There, replace with following content
 
-    var server = https.createServer(
-        {
-          key: fs.readFileSync("/etc/nginx/ssl/2022/gofundher.com.key"),
-          cert: fs.readFileSync("/etc/nginx/ssl/2022/gd_bundle-g2-g1.crt"),
-        },
-        app
-      );
+```
+server {
+    listen [::]:80 default_server;
+
+    server_name gofundher.com
+
+    #root /var/www/example.com;
+    #index index.html;
+
+        client_max_body_size 20M;
+
+    location / {
+        proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+
+      proxy_pass http://localhost:8000;
+      proxy_redirect off;
+
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "Upgrade";
+      proxy_connect_timeout       500000;
+      proxy_send_timeout          500000;
+      proxy_read_timeout          500000;
+      send_timeout                500000;
+    }
+
+        listen 443 ssl;
+        ssl_certificate /home/ubuntu/git/ssl/2022/gd_bundle-g2-g1.crt;
+        ssl_certificate_key /home/ubuntu/git/ssl/2022/gofundher.com.key;
+
+        if ($scheme = http) {
+        return 301 https://$server_name$request_uri;
+        }
+}
+
+```
 
 Update the crt, key file path.
 
@@ -55,6 +88,10 @@ Update the crt, key file path.
 > sudo ufw allow 22
 
 > sudo ufw allow 443
+
+> sudo ufw allow 80
+
+> sudo ufw allow 8000
 
 > sudo ufw enable
 
