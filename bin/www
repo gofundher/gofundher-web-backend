@@ -7,30 +7,19 @@ var debug = require('debug')('gofundher-server:server');
 
 const http = require('http');
 
-const https = require("https");
-const fs = require("fs");
-
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '3002');
-console.log('port',port)
+console.log('port', port)
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-//var server = http.createServer(app);
-
-var server = https.createServer(
-    {
-      key: fs.readFileSync("/etc/nginx/ssl/2022/gofundher.com.key"),
-      cert: fs.readFileSync("/etc/nginx/ssl/2022/gd_bundle-g2-g1.crt"),
-    },
-    app
-  );
+var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -95,3 +84,4 @@ function onListening() {
 	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
 	debug('Listening on ' + bind);
 }
+
