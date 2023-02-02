@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=development  PORT=3002 & nodemon ./bin/www",
-    "build": "NODE_ENV=production PORT=443 node ./bin/www"
+    "build": "NODE_ENV=production PORT=8000 node ./bin/www"
   },
   "dependencies": {
     "@bugsnag/js": "^7.16.1",
