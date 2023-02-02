@@ -1,5 +1,5 @@
 
-# GoFundHer Web Backend
+# GoFundHer Website Backend Project
 
 # Requirements
 - Linux
@@ -15,11 +15,17 @@ Using Putty or XShell to connect AWS EC2 instance that the project will be deplo
 
 ## Clone Code Repository
 > git clone git@github.com:gofundher/gofundher-web-backend.git
+
 > cd gofundher-web-backend
+
 > npm install
 
 ## Copy build folder from GoFundHer-web-client
 - copy build folder from [GoFundHer-web-frontend](https://github.com/gofundher/gofundher-web-frontend "GoFundHer-web-frontend")
+
+## Copy build folder from GoFundHer-web-admin
+- copy build folder from [GoFundHer-web-admin](https://github.com/gofundher/gofundher-web-admin "GoFundHer-web-admin") and rename it to admin
+
 
 ## Database
 - Create a database named "gofundher" in MySQL Server
@@ -30,6 +36,7 @@ If you have a backup of your database, then you can restore it following command
 ## Setup SSL
 Navigate into gofundher-web repository in the server. For example,
 > cd /home/ubuntu/gofundher-web
+
 > sudo nano bin/www
 
 There, you can find following lines:
@@ -46,8 +53,11 @@ Update the crt, key file path.
 
 # Setup firewall
 > sudo ufw allow 22
+
 > sudo ufw allow 443
+
 > sudo ufw enable
+
 > sudo ufw reload
 
 # Running the server
