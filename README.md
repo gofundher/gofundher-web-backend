@@ -1,5 +1,5 @@
 
-# GoFundHer Website Backend
+# GoFundHer Website Project
 
 ![](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png)
 
@@ -14,9 +14,12 @@
 ## Connect to AWS EC instance
 Using Putty or XShell to connect AWS EC2 instance that the project will be deployed on.
 
-## Clone codes from Github
-- Clone codes
-> sudo git clone git@github.com:gofundher/gofundher-web.git
+## Clone Code Repository
+> git clone git@github.com:gofundher/gofundher-web-backend.git
+> cd gofundher-web-backend
+
+## Copy build folder from GoFundHer-web-client
+- copy build folder from [GoFundHer-web-frontend](https://github.com/gofundher/gofundher-web-frontend "GoFundHer-web-frontend")
 
 ## Database
 - Create a database named "gofundher" in MySQL Server
