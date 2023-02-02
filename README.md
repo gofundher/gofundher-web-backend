@@ -36,6 +36,7 @@ If you have a backup of your database, then you can restore it following command
 ## Setup SSL
 Navigate into gofundher-web repository in the server. For example,
 > cd /home/ubuntu/gofundher-web
+
 > sudo nano bin/www
 
 There, you can find following lines:
@@ -52,8 +53,11 @@ Update the crt, key file path.
 
 # Setup firewall
 > sudo ufw allow 22
+
 > sudo ufw allow 443
+
 > sudo ufw enable
+
 > sudo ufw reload
 
 # Running the server
