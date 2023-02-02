@@ -3,9 +3,7 @@
 /node_modules
 /public/images
 /public/images-thumbnail
-/build/static/css
-/build/static/js
-/build/static/media
+/build
 /admin
 
 # misc
