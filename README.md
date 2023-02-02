@@ -1,5 +1,5 @@
 
-# GoFundHer Website Project
+# GoFundHer Web Backend
 
 # Requirements
 - Linux
