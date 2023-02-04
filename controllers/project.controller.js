@@ -71,7 +71,7 @@ const saveProjectDetails = async (req, res) => {
     // To create billing plan in plan with basic price of $1
 
     const planId = await createPlan(projSubData.name, projSubData.caption);
-    
+
     await Project.build({
       name: projSubData.name ? projSubData.name : '',
       description: projSubData.content ? projSubData.content : '',
@@ -164,7 +164,7 @@ const showProjects = async (req, res) => {
       range1 = Percentage[0];
       range2 = Percentage[1];
     }
-    
+
     if (name) {
       condition = {
         ...condition,
@@ -180,7 +180,7 @@ const showProjects = async (req, res) => {
               [Op.like]: `%${name}%`,
             },
           },
-          Sequelize.where(
+          /*Sequelize.where(
             Sequelize.fn(
               'concat',
               Sequelize.col('User.first_name'),
@@ -190,7 +190,7 @@ const showProjects = async (req, res) => {
             {
               [Op.like]: '%' + name.trim() + '%',
             },
-          ),
+          ),*/
         ],
       };
     }
@@ -210,7 +210,7 @@ const showProjects = async (req, res) => {
         };
       }
     }
-   
+
     const projectData = await Project.findAndCountAll({
       // where: condition,
       where: [{ ...condition }],
@@ -241,7 +241,7 @@ const showProjects = async (req, res) => {
       include: [
         {
           model: User,
-          where:{
+          where: {
             [Op.or]: [
               {
                 is_acc_updated: 1,
@@ -542,27 +542,27 @@ const getProjectByURL = async (req, res) => {
       ],
     });
     if (pdata.id) {
-          const updates = await Update.findAll({
-            where: {
-              project_id: pdata.id,
-            },
-            order: [['date', 'Desc']],
-          });
-          return res.status(200).json({
-            responseCode: 200,
-            message: 'Sponsor Page info fetched successfully!',
-            data: pdata,
-            updates,
-            // isVerified: doantionData.is_verified,
-            success: true,
-          });
-        } else {
-          return res.status(400).json({
-            responseCode: 400,
-            message: 'URl not exist',
-            success: false,
-          });
-        }
+      const updates = await Update.findAll({
+        where: {
+          project_id: pdata.id,
+        },
+        order: [['date', 'Desc']],
+      });
+      return res.status(200).json({
+        responseCode: 200,
+        message: 'Sponsor Page info fetched successfully!',
+        data: pdata,
+        updates,
+        // isVerified: doantionData.is_verified,
+        success: true,
+      });
+    } else {
+      return res.status(400).json({
+        responseCode: 400,
+        message: 'URl not exist',
+        success: false,
+      });
+    }
   } catch (error) {
     return res.status(400).json({
       responseCode: 400,
@@ -585,62 +585,62 @@ const getProjectBasicDetail = async (req, res) => {
       });
     }
     try {
-    const pdata = await Project.findOne({
-      where: { url: data.url },
-      attributes: [
-        'id',
-        'amount',
-        'reward',
-        'userId',
-        'name',
-        'url',
-        'plan_id',
-      ],
-      include: [
-        {
-          model: User,
-          attributes: [
-            'id',
-            'first_name',
-            'last_name',
-            'email',
-            'is_verified',
-            'is_acc_updated',
-            'is_paypal_connected',
-            'profileUrl',
-            'plan_id',
-          ],
-        },
-      ],
-    })
-    const donation = await Donation.findOne({
-      where: {
-        user_id: pdata.userId,
-      }
-    });
-        if (pdata) {
-          return res.status(200).json({
-            responseCode: 200,
-            message: 'Sponsor Page info fetched successfully!',
-            data: pdata,
-            isPaypalConnected: donation?.paypal_onboarding_status === 'ACTIVE',
-            success: true,
-          });
-        } else {
-          return res.status(400).json({
-            responseCode: 400,
-            message: 'URl not exist',
-            success: false,
-          });
+      const pdata = await Project.findOne({
+        where: { url: data.url },
+        attributes: [
+          'id',
+          'amount',
+          'reward',
+          'userId',
+          'name',
+          'url',
+          'plan_id',
+        ],
+        include: [
+          {
+            model: User,
+            attributes: [
+              'id',
+              'first_name',
+              'last_name',
+              'email',
+              'is_verified',
+              'is_acc_updated',
+              'is_paypal_connected',
+              'profileUrl',
+              'plan_id',
+            ],
+          },
+        ],
+      })
+      const donation = await Donation.findOne({
+        where: {
+          user_id: pdata.userId,
         }
-     
-      } catch(e) {
+      });
+      if (pdata) {
+        return res.status(200).json({
+          responseCode: 200,
+          message: 'Sponsor Page info fetched successfully!',
+          data: pdata,
+          isPaypalConnected: donation?.paypal_onboarding_status === 'ACTIVE',
+          success: true,
+        });
+      } else {
         return res.status(400).json({
           responseCode: 400,
           message: 'URl not exist',
           success: false,
         });
-      };
+      }
+
+    } catch (e) {
+      return res.status(400).json({
+        responseCode: 400,
+        message: 'URl not exist',
+        success: false,
+      });
+    };
 
 
   } catch (error) {
@@ -781,7 +781,7 @@ const updateProjectInfo = async (req, res) => {
             { where: { id: update.id } },
           );
         } else {
-         return Update.create({
+          return Update.create({
             content: update.content,
             youtube_link: update.youtube_link,
             image: update.image,
@@ -1182,19 +1182,19 @@ const addComment = async (req, res) => {
       });
     }
 
-    const project = await Project.findByPk(projectId, { attributes:['name', 'userId'], raw: true });
+    const project = await Project.findByPk(projectId, { attributes: ['name', 'userId'], raw: true });
     const projectOwner = await User.findByPk(project?.userId, { attributes: ['first_name', 'last_name'], raw: true });
     const userData = id
       ? await User.findOne({
-          where: {
-            id,
-          },
-        })
+        where: {
+          id,
+        },
+      })
       : {};
 
     const response = await Comment.build({
       comment: text ?? null,
-      user_id: id  ?? null,
+      user_id: id ?? null,
       email: email ?? null,
       user_Name: name ?? null,
       project_id: projectId ?? null,
@@ -1205,20 +1205,20 @@ const addComment = async (req, res) => {
 
     if (response) {
       if (project && projectOwner) {
-      new emailSender().sendMail(
-        [userData.email],
-        `You have a new comment on your sponsor page ${project.name}`,
-        ' ',
-        'GoFundHer',
-        // project.User ? project.User.email : "",
-        ' ',
-        'projectNewComment', {
+        new emailSender().sendMail(
+          [userData.email],
+          `You have a new comment on your sponsor page ${project.name}`,
+          ' ',
+          'GoFundHer',
+          // project.User ? project.User.email : "",
+          ' ',
+          'projectNewComment', {
           fullName: `${projectOwner.first_name} ${projectOwner.last_name}`,
           projectName: project.name,
         },
-        true,
-      )
-    }
+          true,
+        )
+      }
 
       return res.status(200).json({
         message: `${commentId ? 'Reply' : 'Comment'} added successfully`,
@@ -1228,7 +1228,7 @@ const addComment = async (req, res) => {
       });
     }
   } catch (error) {
-    
+
     return res.status(500).json({
       message: 'Error occured while addind a comment ',
       error,
@@ -1343,45 +1343,45 @@ const addReply = async (req, res) => {
 // Post update profile link
 const postUpdateProjectUrl = async (req, res) => {
   try {
-  const { currentUser: { id: loggedInUserId } } = req;
-  const { url, projectId } = req.body;
+    const { currentUser: { id: loggedInUserId } } = req;
+    const { url, projectId } = req.body;
 
-  // check if this project belongs to the current user 
-  const projectExist = await Project.count({
-    where: {
-      id: projectId,
-      userId: loggedInUserId,
-    },
-  });
-
-  if (!projectExist) {
-    return res.status(400).json({
-      message: 'Project not found',
-      success: false,
+    // check if this project belongs to the current user 
+    const projectExist = await Project.count({
+      where: {
+        id: projectId,
+        userId: loggedInUserId,
+      },
     });
-  }
 
-  const isUrlUsedInAnotherProfile = await User.count({
-    where: {
-      profileUrl: url,
-      id: { [Op.ne]: loggedInUserId },
-    },
-  });
+    if (!projectExist) {
+      return res.status(400).json({
+        message: 'Project not found',
+        success: false,
+      });
+    }
 
-  const isUrlUsedInAnotherProject = await Project.findOne({
-    where: {
-      url,
-    },
-  });
-
-  // Check if url is used in another profile or project
-  if(isUrlUsedInAnotherProject || isUrlUsedInAnotherProfile) {
-    return res.status(400).json({
-      message: 'This link is already used, pick another one.',
-      urlExist: true,
-      success: false,
+    const isUrlUsedInAnotherProfile = await User.count({
+      where: {
+        profileUrl: url,
+        id: { [Op.ne]: loggedInUserId },
+      },
     });
-  }
+
+    const isUrlUsedInAnotherProject = await Project.findOne({
+      where: {
+        url,
+      },
+    });
+
+    // Check if url is used in another profile or project
+    if (isUrlUsedInAnotherProject || isUrlUsedInAnotherProfile) {
+      return res.status(400).json({
+        message: 'This link is already used, pick another one.',
+        urlExist: true,
+        success: false,
+      });
+    }
 
     const updatedProject = await Project.update({
       url,

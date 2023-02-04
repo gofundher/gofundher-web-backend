@@ -11,7 +11,7 @@ stripe.setApiVersion('2020-08-27'); // SET API VERSION
 const Sequelize = require('sequelize');
 const addMemberToList = require('../helpers/mailChimpApiHelper');
 const Op = Sequelize.Op;
-const {FRONTEND_URL} = process.env;
+const { FRONTEND_URL } = process.env;
 // GET USER INFO TO SHOW ON PROFILE (GET)
 const showUserData = async (req, res) => {
   try {
@@ -129,7 +129,7 @@ const updateProfile = async (req, res) => {
       userData &&
       userData.dataValues &&
       userData.dataValues.is_newsletter_subscribed !==
-        data.is_newsletter_subscribed
+      data.is_newsletter_subscribed
     ) {
       try {
         let status;
@@ -208,7 +208,7 @@ const updateProfile = async (req, res) => {
           success: true,
         });
       })
-      .catch(err => {});
+      .catch(err => { });
   } catch (error) {
     console.log(error, 'errrrrrrrrrrrr');
     return res.status(400).json({
@@ -318,21 +318,23 @@ const getProfiles = async (req, res) => {
     let condition = {
       anonymousUser: 0,
       show_in_profile_list: 1,
+      /*
       [Op.and]: [
         {
           avatar: {
             [Op.ne]: null,
           },
-        },{
+        }, {
           avatar: {
             [Op.ne]: '',
           },
         },
       ],
-
+      */
       is_deleted: {
         [Op.ne]: true,
       },
+      /*
       [Op.or]: [
         {
           is_acc_updated: 1,
@@ -342,6 +344,7 @@ const getProfiles = async (req, res) => {
           is_paypal_connected: 1,
         },
       ],
+      */
     };
     // // search by first name, last name
     if (name) {
@@ -436,32 +439,32 @@ const getAllPagesLinks = async (req, res) => {
 // Post update profile link
 const postUpdateProfileLinkUrl = async (req, res) => {
   try {
-  const { currentUser: { id: loggedInUserId } } = req;
-  const { profileUrl } = req.body;
+    const { currentUser: { id: loggedInUserId } } = req;
+    const { profileUrl } = req.body;
 
-  const isUrlUsedInAnotherProfile = await User.count({
-    where: {
-      profileUrl: profileUrl,
-      id: { [Op.ne]: loggedInUserId },
-    },
-  });
-
-  const isUrlUsedInAnotherProject = await Project.findOne({
-    where: {
-      url: profileUrl,
-    },
-  });
-
-  // Check if url is used in another profile or project
-  if(isUrlUsedInAnotherProject || isUrlUsedInAnotherProfile) {
-    return res.status(400).json({
-      message: 'This user profile url already exist ',
-      profileUrlExist: true,
-      success: false,
+    const isUrlUsedInAnotherProfile = await User.count({
+      where: {
+        profileUrl: profileUrl,
+        id: { [Op.ne]: loggedInUserId },
+      },
     });
-  }
 
-  
+    const isUrlUsedInAnotherProject = await Project.findOne({
+      where: {
+        url: profileUrl,
+      },
+    });
+
+    // Check if url is used in another profile or project
+    if (isUrlUsedInAnotherProject || isUrlUsedInAnotherProfile) {
+      return res.status(400).json({
+        message: 'This user profile url already exist ',
+        profileUrlExist: true,
+        success: false,
+      });
+    }
+
+
     const updatedUser = await User.update({
       profileUrl,
     }, {
