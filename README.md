@@ -44,39 +44,34 @@ There, replace with following content
 
 ```
 server {
-    listen [::]:80 default_server;
-
-    server_name gofundher.com
-
-    #root /var/www/example.com;
-    #index index.html;
-
-        client_max_body_size 20M;
-
-    location / {
-        proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header Host $http_host;
-      proxy_set_header X-NginX-Proxy true;
-
-      proxy_pass http://localhost:8000;
-      proxy_redirect off;
-
-      proxy_http_version 1.1;
-      proxy_set_header Upgrade $http_upgrade;
-      proxy_set_header Connection "Upgrade";
-      proxy_connect_timeout       500000;
-      proxy_send_timeout          500000;
-      proxy_read_timeout          500000;
-      send_timeout                500000;
-    }
-
+        server_name gofundher.com;
+        listen 80 default_server;
         listen 443 ssl;
         ssl_certificate /home/ubuntu/git/ssl/2022/gd_bundle-g2-g1.crt;
         ssl_certificate_key /home/ubuntu/git/ssl/2022/gofundher.com.key;
+        #root /var/www/example.com;
+        #index index.html;
+        client_max_body_size 20M;
 
         if ($scheme = http) {
-        return 301 https://$server_name$request_uri;
+                return 301 https://$server_name$request_uri;
+        }
+        location / {
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-NginX-Proxy true;
+
+                proxy_pass http://localhost:8000;
+                proxy_redirect off;
+
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+                proxy_connect_timeout       500000;
+                proxy_send_timeout          500000;
+                proxy_read_timeout          500000;
+                send_timeout                500000;
         }
 }
 
