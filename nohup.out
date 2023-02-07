@@ -1,0 +1,147 @@
+
+> gofundher-server@0.0.0 build
+> NODE_ENV=production PORT=8000 node ./bin/www
+
+dotenv-flow: "STRIPE_PUBLISHABLE_KEY" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "STRIPE_SECRET_KEY" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "REFRESH_URL" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "RETURN_URL" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_CLIENT" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_SECRET" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_MERCHANT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PRODUCT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_API" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "EMAIL_SERVICE" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "EMAIL_USER" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "EMAIL_PASSWORD" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "FRONTEND_URL" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "BACKEND_URL" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "FB_CLIENT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "FB_CLIENT_SECRET" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "LINKEDIN_CLIENT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "LINKEDIN_CLIENT_SECRET" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "GOOGLE_CLIENT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "GOOGLE_CLIENT_SECRET" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_USERNAME_PRODUCTION" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_PASSWORD_PRODUCTION" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_NAME_PRODUCTION" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_HOST_PRODUCTION" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_USERNAME" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_PASSWORD" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_NAME" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "DB_HOST" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_BUSINESS_MERCHANT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_BUSINESS_ACCOUNT" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_BUSINESS_CLIENT_ID" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_BUSINESS_SECRET" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_BUSINESS_API_URL" is already defined in `process.env` and will not be overwritten
+dotenv-flow: "PAYPAL_BUSINESS_PRODUCT_ID" is already defined in `process.env` and will not be overwritten
+[bugsnag] Loaded!
+port 8000
+Executing (default): CREATE TABLE IF NOT EXISTS `Admins` (`id` INTEGER NOT NULL auto_increment , `first_name` VARCHAR(255), `last_name` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Admins` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Users` (`id` INTEGER NOT NULL auto_increment , `first_name` VARCHAR(255), `last_name` VARCHAR(255), `email` VARCHAR(255) UNIQUE, `password` VARCHAR(255), `isActive` TINYINT(1), `street` VARCHAR(255), `city` VARCHAR(255), `state` VARCHAR(255), `zip` VARCHAR(255), `phone` VARCHAR(255), `personal_website` VARCHAR(255), `facebook` VARCHAR(255), `twitter` VARCHAR(255), `instagram` VARCHAR(255), `linkedin` VARCHAR(255), `youtube` VARCHAR(255), `tiktok` VARCHAR(255), `youtube_video_link` VARCHAR(255), `whatsapp` VARCHAR(255), `twitch` VARCHAR(255), `bio` VARCHAR(255), `is_receive_news` TINYINT(1), `avatar` VARCHAR(255), `is_social` TINYINT(1), `is_verified` TINYINT(1) DEFAULT 0, `is_acc_updated` TINYINT(1) DEFAULT 0, `is_paypal_connected` TINYINT(1) DEFAULT 0, `forget_token` VARCHAR(255), `profileUrl` VARCHAR(255), `last_login` DATETIME, `next_donation_date` DATETIME, `is_recurring` TINYINT(1), `customer_id` VARCHAR(255), `plan_id` VARCHAR(255), `anonymousUser` TINYINT(1), `isFeatured` TINYINT(1), `is_featured_second` TINYINT(1), `show_in_profile_list` TINYINT(1) DEFAULT 1, `is_newsletter_subscribed` TINYINT(1), `is_deleted` TINYINT(1) DEFAULT 0, `rewards` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Users` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Projects` (`id` INTEGER NOT NULL auto_increment , `name` VARCHAR(255), `description` TEXT, `url` VARCHAR(255) UNIQUE, `punch_line` VARCHAR(255), `category` VARCHAR(255), `video` VARCHAR(255), `amount` FLOAT(10,2), `deadline` DATETIME, `userId` INTEGER, `location` VARCHAR(255), `status` ENUM('draft', 'live'), `project_location` VARCHAR(255), `percentage` FLOAT(10,2), `total_contributors` BIGINT(11), `total_pledged` FLOAT(10,2), `gallery` TEXT, `featured_image` TEXT, `thumbnail_image` TEXT, `reward` TEXT, `faq` TEXT, `plan_id` VARCHAR(255), `isFeatured` TINYINT(1), `is_deleted` TINYINT(1) DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Projects` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Comments` (`id` INTEGER NOT NULL auto_increment , `comment` TEXT, `user_id` INTEGER, `email` VARCHAR(255), `user_Name` VARCHAR(255), `project_id` INTEGER, `parent_id` INTEGER, `status` TINYINT(1) DEFAULT 1, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Comments` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `ContactFormInfos` (`id` INTEGER NOT NULL auto_increment , `name` VARCHAR(255), `email` VARCHAR(255), `message` TEXT, `user_id` VARCHAR(255), `status` ENUM('open', 'pending', 'completed'), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `ContactFormInfos` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Donations` (`id` INTEGER NOT NULL auto_increment , `user_id` VARCHAR(255), `account_id` VARCHAR(255), `routing_number` VARCHAR(255), `account_number` VARCHAR(255), `date_of_birth` DATE, `ssn` VARCHAR(255), `address` VARCHAR(255), `city` VARCHAR(255), `phone` VARCHAR(255), `state` VARCHAR(255), `postal_code` VARCHAR(255), `identity_doc` VARCHAR(255), `error` TEXT, `paypal_email` VARCHAR(255), `paypal_mobile` VARCHAR(255), `paypal_photo_id` VARCHAR(255), `paypal_country` VARCHAR(255), `paypal_state` VARCHAR(255), `paypal_city` VARCHAR(255), `paypal_merchant_id` VARCHAR(255), `paypal_onboarding_status` ENUM('WAITING', 'ACTIVE', 'DECLINED'), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Donations` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Finances` (`id` INTEGER NOT NULL auto_increment , `user_id` INTEGER, `full_name` VARCHAR(255), `email` VARCHAR(255), `phone` VARCHAR(255), `is_info_sharable` TINYINT(1), `checkout_id` VARCHAR(255), `is_recurring` TINYINT(1), `next_donation_date` DATETIME, `website_amount` DECIMAL(10,2), `tip_percentage` INTEGER, `donation_id` VARCHAR(255), `project_id` INTEGER, `amount` DECIMAL(10,2), `payout_amount` DECIMAL(10,2), `transferred_amount` DECIMAL(10,2), `transferred_via` ENUM('stripe', 'paypal', 'mobileNumber'), `transfer_id` VARCHAR(255), `reward_id` INTEGER, `status` TINYINT(1), `profile_id` INTEGER, `direct_donation` TINYINT(1), `payment_by` ENUM('stripe', 'paypal'), `payment_status` ENUM('Pending', 'Completed'), `payout_succeed` TINYINT(1), `note` TEXT, `webhook_event_id` VARCHAR(255), `comment` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`profile_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Finances` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `NewsletterSubscribers` (`id` INTEGER NOT NULL auto_increment , `memeber_id` VARCHAR(255), `email` VARCHAR(255), `user_id` VARCHAR(255), `status` TINYINT(1), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `NewsletterSubscribers` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `RecurringDonars` (`id` INTEGER NOT NULL auto_increment , `user_id` INTEGER, `full_name` VARCHAR(255), `email` VARCHAR(255), `phone` VARCHAR(255), `is_info_sharable` TINYINT(1), `project_id` INTEGER, `amount` DECIMAL(10,2), `tip_amount` DECIMAL(10,2), `tip_percentage` INTEGER, `subscribed_by` ENUM('stripe', 'paypal'), `subscription_id` VARCHAR(255), `next_donation_date` DATETIME, `is_recurring` TINYINT(1), `profile_id` INTEGER, `direct_donation` TINYINT(1), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `RecurringDonars` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Updates` (`id` INTEGER NOT NULL auto_increment , `youtube_link` TEXT, `image` TEXT, `content` TEXT, `project_id` INTEGER, `date` DATETIME, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Updates` FROM `gofundher`
+Executing (default): CREATE TABLE IF NOT EXISTS `Uploads` (`id` INTEGER NOT NULL auto_increment , `type` VARCHAR(255), `name` VARCHAR(255), `data` VARCHAR(255), `thumbnailImage` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
+Executing (default): SHOW INDEX FROM `Uploads` FROM `gofundher`
+[0mGET /search [32m200 [0m9.546 ms - 2183[0m
+[0mGET /assets/css/bootstrap.min.css [36m304 [0m1.454 ms - -[0m
+[0mGET /assets/css/style.css [36m304 [0m0.565 ms - -[0m
+[0mGET /assets/css/responsive.css [36m304 [0m1.519 ms - -[0m
+[0mGET /static/css/main.937a0a30.css [36m304 [0m1.118 ms - -[0m
+[0mGET /static/js/main.9962c66c.js [36m304 [0m0.575 ms - -[0m
+[0mGET /assets/img/gofundher-logo-new.png [36m304 [0m0.745 ms - -[0m
+[0mGET /static/js/1830.78114ecd.chunk.js [36m304 [0m0.505 ms - -[0m
+[0mGET /static/js/4112.5c3474b1.chunk.js [36m304 [0m1.792 ms - -[0m
+[0mGET /static/js/7291.09d95e0d.chunk.js [36m304 [0m1.606 ms - -[0m
+[0mGET /static/js/8995.59fe07b4.chunk.js [36m304 [0m1.488 ms - -[0m
+[0mGET /static/js/2123.3d111850.chunk.js [36m304 [0m1.482 ms - -[0m
+[0mGET /static/css/53.2e61c880.chunk.css [36m304 [0m1.431 ms - -[0m
+[0mGET /assets/img/icons/toparrow.svg [36m304 [0m1.314 ms - -[0m
+[0mGET /static/js/6381.86cc0184.chunk.js [36m304 [0m1.135 ms - -[0m
+[0mGET /assets/img/icons/facebook-icon.svg [36m304 [0m1.230 ms - -[0m
+[0mGET /static/js/53.985b8a47.chunk.js [36m304 [0m1.375 ms - -[0m
+[0mGET /assets/img/icons/twitter-icon.svg [36m304 [0m1.371 ms - -[0m
+[0mGET /assets/img/icons/linkedin-icon.svg [36m304 [0m1.170 ms - -[0m
+[0mGET /assets/img/icons/instagram-icon.svg [36m304 [0m1.410 ms - -[0m
+[0mGET /assets/img/icons/pinterest-icon.svg [36m304 [0m0.686 ms - -[0m
+[0mGET /assets/img/icons/youtube-icon.svg [36m304 [0m0.492 ms - -[0m
+[0mGET /assets/img/footer-secure-card.png [36m304 [0m0.470 ms - -[0m
+[0mGET /favicon.ico [32m200 [0m0.931 ms - 15406[0m
+[0mGET /static/media/caret-down.f5845b071e60a3eedf85.svg [36m304 [0m0.608 ms - -[0m
+Executing (default): SELECT count(`Project`.`id`) AS `count` FROM `Projects` AS `Project` INNER JOIN `Users` AS `User` ON `Project`.`userId` = `User`.`id` AND ((`User`.`is_acc_updated` = 1 AND `User`.`is_verified` = 1) OR `User`.`is_paypal_connected` = 1) WHERE ((`Project`.`status` = 'live' AND `Project`.`is_deleted` != true));
+Executing (default): SELECT `Project`.`id`, `Project`.`name`, `Project`.`url`, `Project`.`punch_line`, `Project`.`category`, `Project`.`amount`, `Project`.`deadline`, `Project`.`userId`, `Project`.`location`, `Project`.`status`, `Project`.`project_location`, `Project`.`percentage`, `Project`.`total_contributors`, `Project`.`total_pledged`, `Project`.`featured_image`, `Project`.`thumbnail_image`, `Project`.`createdAt`, `Project`.`updatedAt`, `Project`.`isFeatured`, `User`.`id` AS `User.id`, `User`.`first_name` AS `User.first_name`, `User`.`last_name` AS `User.last_name`, `User`.`email` AS `User.email`, `User`.`is_verified` AS `User.is_verified`, `User`.`is_acc_updated` AS `User.is_acc_updated`, `User`.`profileUrl` AS `User.profileUrl`, `User`.`is_paypal_connected` AS `User.is_paypal_connected` FROM `Projects` AS `Project` INNER JOIN `Users` AS `User` ON `Project`.`userId` = `User`.`id` AND ((`User`.`is_acc_updated` = 1 AND `User`.`is_verified` = 1) OR `User`.`is_paypal_connected` = 1) WHERE ((`Project`.`status` = 'live' AND `Project`.`is_deleted` != true)) ORDER BY `Project`.`createdAt` DESC LIMIT 0, 9;
+[0mGET /api/projects/get_project?page=1&limit=9&name=&category=&percentage= [36m304 [0m31.278 ms - -[0m
+[0mGET /images/file-1674118002784-image.png [36m304 [0m1.809 ms - -[0m
+[0mGET /images/file-1673632273825-image.png [36m304 [0m2.055 ms - -[0m
+[0mGET /images/file-1670193548388-image.png [36m304 [0m2.038 ms - -[0m
+[0mGET /images/file-1667423560057-image.png [36m304 [0m1.611 ms - -[0m
+[0mGET /images/file-1670108469066-image.png [36m304 [0m1.583 ms - -[0m
+[0mGET /images/file-1662573480040-image.png [36m304 [0m0.803 ms - -[0m
+[0mGET /images/file-1659219126512-image.png [36m304 [0m1.802 ms - -[0m
+[0mGET /images/file-1656778279026-image.png [36m304 [0m1.719 ms - -[0m
+[0mGET /assets/img/icons/whatsapp-icon.svg [36m304 [0m0.532 ms - -[0m
+[0mGET /images/file-1656554674153-image.png [36m304 [0m1.860 ms - -[0m
+[0mGET /favicon.ico [36m304 [0m0.584 ms - -[0m
+[0mGET /manifest.json [36m304 [0m0.425 ms - -[0m
+[0mGET /static/media/caret-down-pink.d366d1e98025bcdf49d1.svg [36m304 [0m0.556 ms - -[0m
+[bugsnag] 39 session(s) reported
+[0mGET /search [36m304 [0m1.536 ms - -[0m
+[0mGET /assets/css/bootstrap.min.css [36m304 [0m1.099 ms - -[0m
+[0mGET /assets/css/style.css [36m304 [0m1.086 ms - -[0m
+[0mGET /static/css/main.937a0a30.css [36m304 [0m1.204 ms - -[0m
+[0mGET /assets/css/responsive.css [36m304 [0m0.974 ms - -[0m
+[0mGET /static/js/main.9962c66c.js [36m304 [0m0.534 ms - -[0m
+[0mGET /assets/img/gofundher-logo-new.png [36m304 [0m0.590 ms - -[0m
+[0mGET /static/js/1830.78114ecd.chunk.js [36m304 [0m0.692 ms - -[0m
+[0mGET /static/js/4112.5c3474b1.chunk.js [36m304 [0m1.068 ms - -[0m
+[0mGET /static/js/7291.09d95e0d.chunk.js [36m304 [0m1.015 ms - -[0m
+[0mGET /static/js/8995.59fe07b4.chunk.js [36m304 [0m2.137 ms - -[0m
+[0mGET /static/js/2123.3d111850.chunk.js [36m304 [0m2.148 ms - -[0m
+[0mGET /static/css/53.2e61c880.chunk.css [36m304 [0m0.541 ms - -[0m
+[0mGET /assets/img/icons/toparrow.svg [36m304 [0m0.488 ms - -[0m
+[0mGET /static/js/6381.86cc0184.chunk.js [36m304 [0m0.490 ms - -[0m
+[0mGET /static/js/53.985b8a47.chunk.js [36m304 [0m0.475 ms - -[0m
+[0mGET /assets/img/icons/twitter-icon.svg [36m304 [0m1.039 ms - -[0m
+[0mGET /assets/img/icons/facebook-icon.svg [36m304 [0m0.965 ms - -[0m
+[0mGET /assets/img/icons/instagram-icon.svg [36m304 [0m0.501 ms - -[0m
+[0mGET /assets/img/icons/linkedin-icon.svg [36m304 [0m0.487 ms - -[0m
+[0mGET /assets/img/icons/pinterest-icon.svg [36m304 [0m0.454 ms - -[0m
+[0mGET /assets/img/icons/youtube-icon.svg [36m304 [0m0.450 ms - -[0m
+[0mGET /assets/img/footer-secure-card.png [36m304 [0m1.026 ms - -[0m
+[0mGET /favicon.ico [36m304 [0m0.956 ms - -[0m
+[0mGET /static/media/caret-down.f5845b071e60a3eedf85.svg [36m304 [0m0.479 ms - -[0m
+Executing (default): SELECT count(`Project`.`id`) AS `count` FROM `Projects` AS `Project` INNER JOIN `Users` AS `User` ON `Project`.`userId` = `User`.`id` AND ((`User`.`is_acc_updated` = 1 AND `User`.`is_verified` = 1) OR `User`.`is_paypal_connected` = 1) WHERE ((`Project`.`status` = 'live' AND `Project`.`is_deleted` != true));
+Executing (default): SELECT `Project`.`id`, `Project`.`name`, `Project`.`url`, `Project`.`punch_line`, `Project`.`category`, `Project`.`amount`, `Project`.`deadline`, `Project`.`userId`, `Project`.`location`, `Project`.`status`, `Project`.`project_location`, `Project`.`percentage`, `Project`.`total_contributors`, `Project`.`total_pledged`, `Project`.`featured_image`, `Project`.`thumbnail_image`, `Project`.`createdAt`, `Project`.`updatedAt`, `Project`.`isFeatured`, `User`.`id` AS `User.id`, `User`.`first_name` AS `User.first_name`, `User`.`last_name` AS `User.last_name`, `User`.`email` AS `User.email`, `User`.`is_verified` AS `User.is_verified`, `User`.`is_acc_updated` AS `User.is_acc_updated`, `User`.`profileUrl` AS `User.profileUrl`, `User`.`is_paypal_connected` AS `User.is_paypal_connected` FROM `Projects` AS `Project` INNER JOIN `Users` AS `User` ON `Project`.`userId` = `User`.`id` AND ((`User`.`is_acc_updated` = 1 AND `User`.`is_verified` = 1) OR `User`.`is_paypal_connected` = 1) WHERE ((`Project`.`status` = 'live' AND `Project`.`is_deleted` != true)) ORDER BY `Project`.`createdAt` DESC LIMIT 0, 9;
+[0mGET /api/projects/get_project?page=1&limit=9&name=&category=&percentage= [36m304 [0m15.921 ms - -[0m
+[0mGET /favicon.ico [36m304 [0m0.574 ms - -[0m
+[0mGET /manifest.json [36m304 [0m0.429 ms - -[0m
+[0mGET /assets/img/icons/whatsapp-icon.svg [36m304 [0m0.582 ms - -[0m
+[0mGET /images/file-1674118002784-image.png [36m304 [0m0.869 ms - -[0m
+[0mGET /images/file-1673632273825-image.png [36m304 [0m0.742 ms - -[0m
+[0mGET /images/file-1670193548388-image.png [36m304 [0m0.741 ms - -[0m
+[0mGET /images/file-1670108469066-image.png [36m304 [0m0.823 ms - -[0m
+[0mGET /images/file-1667423560057-image.png [36m304 [0m1.723 ms - -[0m
+[0mGET /images/file-1662573480040-image.png [36m304 [0m0.807 ms - -[0m
+[0mGET /static/media/caret-down-pink.d366d1e98025bcdf49d1.svg [36m304 [0m0.483 ms - -[0m
+[0mGET /images/file-1659219126512-image.png [36m304 [0m1.649 ms - -[0m
+[0mGET /images/file-1656778279026-image.png [36m304 [0m1.601 ms - -[0m
+[0mGET /images/file-1656554674153-image.png [36m304 [0m0.713 ms - -[0m
+[bugsnag] 39 session(s) reported
+[0mGET /larae-montez [32m200 [0m1.332 ms - 2183[0m
