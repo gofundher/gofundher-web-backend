@@ -104,7 +104,7 @@ const onSubscribePaypalPlan = async (req, res) => {
           where: {
             id: recurringData.id,
           },
-        }, );
+        });
       }
     } else {
       await RecurringDonars.build({
@@ -190,7 +190,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
         where: {
           id: req.body.userId,
         },
-      }, );
+      });
     }
 
     const directDonationUserName = await User.findOne({
@@ -233,7 +233,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
           user_id: body.userId,
           profile_id: body.profile_id,
         },
-      }, );
+      });
     } else {
       await RecurringDonars.update({
         next_donation_date: null,
@@ -243,7 +243,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
           user_id: body.userId,
           project_id: body.projectId,
         },
-      }, );
+      });
     }
     if (userData) {
       {
@@ -256,12 +256,12 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeUser', {
-              first_name: userData.first_name,
-              last_name: userData.last_name,
-              amount: checkrecurring.amount,
-              name: directDonationUserName.first_name,
-              lastName: directDonationUserName.last_name,
-            },
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            amount: checkrecurring.amount,
+            name: directDonationUserName.first_name,
+            lastName: directDonationUserName.last_name,
+          },
             true,
           ) :
           new emailSender().sendMail(
@@ -272,11 +272,11 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeProject', {
-              first_name: userData.first_name,
-              last_name: userData.last_name,
-              amount: checkrecurring.amount,
-              name: projectData ? projectData.name : '',
-            },
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            amount: checkrecurring.amount,
+            name: projectData ? projectData.name : '',
+          },
             true,
           );
       }
@@ -296,12 +296,12 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeFundraiser', {
-              first_name: fundRaiser.first_name,
-              last_name: fundRaiser.last_name,
-              amount: checkrecurring.amount,
-              name: userData.first_name,
-              lastName: userData.last_name,
-            },
+            first_name: fundRaiser.first_name,
+            last_name: fundRaiser.last_name,
+            amount: checkrecurring.amount,
+            name: userData.first_name,
+            lastName: userData.last_name,
+          },
             true,
           ) :
           new emailSender().sendMail(
@@ -312,12 +312,12 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeProjectOwner', {
-              first_name: fundRaiser.dataValues.first_name,
-              last_name: fundRaiser.dataValues.last_name,
-              amount: checkrecurring.amount,
-              name: projectData ? projectData.name : '',
-              donarName: [userData.first_name, userData.last_name].join(' '),
-            },
+            first_name: fundRaiser.dataValues.first_name,
+            last_name: fundRaiser.dataValues.last_name,
+            amount: checkrecurring.amount,
+            name: projectData ? projectData.name : '',
+            donarName: [userData.first_name, userData.last_name].join(' '),
+          },
             true,
           );
       }
@@ -363,7 +363,7 @@ const createAnonymous = async () => {
     if (userRec.length === 0) {
       email = 'anonymous' + lastName + '@gofundher.com';
     } else {
-      lastName = parseInt(userRec[0].dataValues.last_name) +Math.round( Math.random() * 100000) || '';
+      lastName = parseInt(userRec[0].dataValues.last_name) + Math.round(Math.random() * 100000) || '';
       email = 'anonymous' + lastName + '@gofundher.com';
     }
 
@@ -423,18 +423,18 @@ const paypalWebhooks = async (req, res) => {
         res,
       );
     }
-    break;
-  case 'PAYMENT.SALE.COMPLETED':
-    recurringChargeWebhook(req, res);
-    break;
-  case 'BILLING.SUBSCRIPTION.CANCELLED':
-    unsubscribeWebhookHandler(req, res);
-    break;
-  case 'PAYMENT.PAYOUTSBATCH.SUCCESS':
-    payoutSuccessWebhookHandler(req, res);
-    break;
-  default:
-    break;
+      break;
+    case 'PAYMENT.SALE.COMPLETED':
+      recurringChargeWebhook(req, res);
+      break;
+    case 'BILLING.SUBSCRIPTION.CANCELLED':
+      unsubscribeWebhookHandler(req, res);
+      break;
+    case 'PAYMENT.PAYOUTSBATCH.SUCCESS':
+      payoutSuccessWebhookHandler(req, res);
+      break;
+    default:
+      break;
   }
 };
 // I think this is for paypal
@@ -489,7 +489,7 @@ const recurringChargeWebhook = async (req, res) => {
     include: [{
       model: User,
       attributes: ['email'],
-    }, ],
+    },],
     raw: true,
   });
   // Details of fundraiser
@@ -532,7 +532,7 @@ const recurringChargeWebhook = async (req, res) => {
     where: {
       id: financeData.dataValues.id,
     },
-  }, );
+  });
   const {
     isError,
     data
@@ -549,7 +549,7 @@ const recurringChargeWebhook = async (req, res) => {
     where: {
       subscription_id: resource.billing_agreement_id,
     },
-  }, );
+  });
   if (userData) {
     !project_id
       ?
@@ -557,46 +557,46 @@ const recurringChargeWebhook = async (req, res) => {
         userData ? [userData.email] : [],
         // check for cycle complete it's first time or renewal one
         data.billing_info.cycle_executions[0].cycles_completed === 0 ?
-        'Thank you for Donating! ' :
-        'Donation Renewal',
+          'Thank you for Donating! ' :
+          'Donation Renewal',
         ' ',
         'GoFundHer',
         '',
         // ccUserData ? ccUserData.email : "",
         data.billing_info.cycle_executions[0].cycles_completed === 0 ?
-        'monthlyUser' :
-        'donationRenewalUser', {
-          first_name: userData ? userData.first_name : 'Anonymous',
-          last_name: userData ? userData.last_name : '',
-          amount: amount,
-          name: ccUserData ? ccUserData.first_name : '',
-          lastName: ccUserData ? ccUserData.last_name : '',
-          date: moment()
-            .add(1, 'months')
-            .format('MMMM Do, YYYY'),
-        },
+          'monthlyUser' :
+          'donationRenewalUser', {
+        first_name: userData ? userData.first_name : 'Anonymous',
+        last_name: userData ? userData.last_name : '',
+        amount: amount,
+        name: ccUserData ? ccUserData.first_name : '',
+        lastName: ccUserData ? ccUserData.last_name : '',
+        date: moment()
+          .add(1, 'months')
+          .format('MMMM Do, YYYY'),
+      },
         true,
       ) :
       new emailSender().sendMail(
         userData ? [userData.email] : [],
         data.billing_info.cycle_executions[0].cycles_completed === 0 ?
-        'Thank you for Donating! ' :
-        'Donation Renewal',
+          'Thank you for Donating! ' :
+          'Donation Renewal',
         ' ',
         'GoFundHer',
         '',
         // ccUserData ? ccUserData.email : "",
         data.billing_info.cycle_executions[0].cycles_completed === 0 ?
-        'monthlyProject' :
-        'donationRenewalProject', {
-          first_name: userData ? userData.first_name : 'Anonymous',
-          last_name: userData ? userData.last_name : '',
-          amount: amount,
-          name: projectData ? projectData.name : null,
-          date: moment()
-            .add(1, 'months')
-            .format('MMMM Do, YYYY'),
-        },
+          'monthlyProject' :
+          'donationRenewalProject', {
+        first_name: userData ? userData.first_name : 'Anonymous',
+        last_name: userData ? userData.last_name : '',
+        amount: amount,
+        name: projectData ? projectData.name : null,
+        date: moment()
+          .add(1, 'months')
+          .format('MMMM Do, YYYY'),
+      },
         true,
       );
   }
@@ -611,19 +611,19 @@ const recurringChargeWebhook = async (req, res) => {
       '',
       // ccUserData ? ccUserData.email : "",
       'ReceivedMonthlyUser', {
-        first_name: ccUserData ? ccUserData.first_name : 'Anonymous',
-        last_name: ccUserData ? ccUserData.last_name : '',
-        amount: amount,
-        name: ccUserData ? ccUserData.first_name : '',
-        lastName: ccUserData ? ccUserData.last_name : '',
-        donatedBy: userData && !userData.anonymousUser ?
-          [userData.first_name, userData.last_name].join(' ') :
-          'Anonymous',
-        date: moment()
-          .add(1, 'months')
-          .format('MMMM Do, YYYY'),
-        comment: '',
-      },
+      first_name: ccUserData ? ccUserData.first_name : 'Anonymous',
+      last_name: ccUserData ? ccUserData.last_name : '',
+      amount: amount,
+      name: ccUserData ? ccUserData.first_name : '',
+      lastName: ccUserData ? ccUserData.last_name : '',
+      donatedBy: userData && !userData.anonymousUser ?
+        [userData.first_name, userData.last_name].join(' ') :
+        'Anonymous',
+      date: moment()
+        .add(1, 'months')
+        .format('MMMM Do, YYYY'),
+      comment: '',
+    },
       true,
     ) :
     new emailSender().sendMail(
@@ -634,18 +634,18 @@ const recurringChargeWebhook = async (req, res) => {
       '',
       // ccUserData ? ccUserData.email : "",
       'ReceivedMonthlyProject', {
-        first_name: ccUserData ? ccUserData.first_name : 'Anonymous',
-        last_name: ccUserData ? ccUserData.last_name : '',
-        amount: amount,
-        name: projectData ? projectData.name : null,
-        donatedBy: userData && !userData.anonymousUser ?
-          [userData.first_name, userData.last_name].join(' ') :
-          'Anonymous',
-        date: moment()
-          .add(1, 'months')
-          .format('MMMM Do, YYYY'),
-        comment: '',
-      },
+      first_name: ccUserData ? ccUserData.first_name : 'Anonymous',
+      last_name: ccUserData ? ccUserData.last_name : '',
+      amount: amount,
+      name: projectData ? projectData.name : null,
+      donatedBy: userData && !userData.anonymousUser ?
+        [userData.first_name, userData.last_name].join(' ') :
+        'Anonymous',
+      date: moment()
+        .add(1, 'months')
+        .format('MMMM Do, YYYY'),
+      comment: '',
+    },
       true,
     );
   if (direct_donation) {
@@ -730,7 +730,7 @@ const updatePaymentStatus = async (
         where: {
           donation_id: donationId,
         },
-      }, );
+      });
 
       if (userData) {
         // to send email to donor on successful donation on project/profile
@@ -744,17 +744,17 @@ const updatePaymentStatus = async (
             '',
             // ccUserData.email,
             is_recurring ? 'monthlyUser' : 'oneTimeUser', {
-              first_name: userData ? userData.first_name : 'Anonymous',
-              last_name: userData ? userData.last_name : '',
-              amount: amount,
-              name: ccUserData ? ccUserData.first_name : '',
-              lastName: ccUserData ? ccUserData.last_name : '',
-              date: is_recurring ?
-                moment()
+            first_name: userData ? userData.first_name : 'Anonymous',
+            last_name: userData ? userData.last_name : '',
+            amount: amount,
+            name: ccUserData ? ccUserData.first_name : '',
+            lastName: ccUserData ? ccUserData.last_name : '',
+            date: is_recurring ?
+              moment()
                 .add(1, 'months')
                 .format('MMMM Do, YYYY') :
-                null,
-            },
+              null,
+          },
             true,
           ) :
           new emailSender().sendMail(
@@ -765,16 +765,16 @@ const updatePaymentStatus = async (
             '',
             // projectData.User ? projectData.User.email : ccUserData.email,
             is_recurring ? 'monthlyProject' : 'oneTimeProject', {
-              first_name: userData ? userData.first_name : 'Anonymous',
-              last_name: userData ? userData.last_name : '',
-              amount: amount,
-              name: projectData ? projectData.name : '',
-              date: is_recurring ?
-                moment()
+            first_name: userData ? userData.first_name : 'Anonymous',
+            last_name: userData ? userData.last_name : '',
+            amount: amount,
+            name: projectData ? projectData.name : '',
+            date: is_recurring ?
+              moment()
                 .add(1, 'months')
                 .format('MMMM Do, YYYY') :
-                null,
-            },
+              null,
+          },
             true,
           );
       }
@@ -789,24 +789,24 @@ const updatePaymentStatus = async (
           '',
           // ccUserData.email,
           is_recurring ? 'ReceivedMonthlyUser' : 'ReceivedOnetimeUser', {
-            first_name: ccUserData ? ccUserData.first_name : '',
-            last_name: ccUserData ? ccUserData.last_name : '',
-            amount: amount,
-            name: ccUserData ? ccUserData.first_name : '',
-            lastName: ccUserData ? ccUserData.last_name : '',
-            donatedBy: user_id && userData ?
-              [userData.first_name, userData.last_name].join(' ') :
-              'Anonymous',
-            comment: comment ?
-              `<b>Message from your donor: </b>${comment}` :
-              '',
-            date: is_recurring ?
-              moment()
+          first_name: ccUserData ? ccUserData.first_name : '',
+          last_name: ccUserData ? ccUserData.last_name : '',
+          amount: amount,
+          name: ccUserData ? ccUserData.first_name : '',
+          lastName: ccUserData ? ccUserData.last_name : '',
+          donatedBy: user_id && userData ?
+            [userData.first_name, userData.last_name].join(' ') :
+            'Anonymous',
+          comment: comment ?
+            `<b>Message from your donor: </b>${comment}` :
+            '',
+          date: is_recurring ?
+            moment()
               .add(1, 'months')
               .format('MMMM Do, YYYY') :
-              null,
-            comment,
-          },
+            null,
+          comment,
+        },
           true,
         ) :
         new emailSender().sendMail(
@@ -817,23 +817,23 @@ const updatePaymentStatus = async (
           '',
           // projectData.User ? projectData.User.email : ccUserData.email,
           is_recurring ? 'ReceivedMonthlyProject' : 'ReceivedOnetimeProject', {
-            first_name: ccUserData ? ccUserData.first_name : 'Anonymous',
-            last_name: ccUserData ? ccUserData.last_name : '',
-            amount: amount,
-            name: projectData ? projectData.name : '',
-            donatedBy: user_id && userData ?
-              [userData.first_name, userData.last_name].join(' ') :
-              'Anonymous',
-            comment: comment ?
-              `<b>Message from your donor: </b>${comment}` :
-              '',
-            date: is_recurring ?
-              moment()
+          first_name: ccUserData ? ccUserData.first_name : 'Anonymous',
+          last_name: ccUserData ? ccUserData.last_name : '',
+          amount: amount,
+          name: projectData ? projectData.name : '',
+          donatedBy: user_id && userData ?
+            [userData.first_name, userData.last_name].join(' ') :
+            'Anonymous',
+          comment: comment ?
+            `<b>Message from your donor: </b>${comment}` :
+            '',
+          date: is_recurring ?
+            moment()
               .add(1, 'months')
               .format('MMMM Do, YYYY') :
-              null,
-            comment,
-          },
+            null,
+          comment,
+        },
           true,
         );
       // }
@@ -893,7 +893,7 @@ const updateProjectFund = async project_id => {
         where: {
           id: project_id,
         },
-      }, );
+      });
     }
   } catch (error) {
     console.log(error);
@@ -914,7 +914,7 @@ const unsubscribeWebhookHandler = async (req, res) => {
       where: {
         subscription_id: resource.id,
       },
-    }, );
+    });
     return res.status(200).json({
       responseCode: 200,
       success: true,
@@ -941,7 +941,7 @@ const payoutSuccessWebhookHandler = async (req, res) => {
       where: {
         payout_batch_id,
       },
-    }, );
+    });
   } catch (error) {
     console.log(error, 'error');
   }
@@ -1102,7 +1102,7 @@ const getOrCreateCustomer = async ({
     where: {
       id: user.id,
     },
-  }, );
+  });
 
   return {
     id: customer.id,
@@ -1128,6 +1128,7 @@ const getStripeSubscriptionClientSecret = async ({
     metadata,
     payment_behavior: 'default_incomplete',
     expand: ['latest_invoice.payment_intent'],
+    on_behalf_of: accountId,
     transfer_data: {
       destination: accountId
     }
@@ -1154,7 +1155,8 @@ const getStripePaymentIntentClientSecret = async ({
     application_fee_amount: Number(((tipAmount).toFixed(2) || (amount * 0.05).toFixed(2)) * 100).toFixed(0),
     transfer_data: {
       destination: accountId
-    }
+    },
+    on_behalf_of: accountId
   };
   const paymentIntent = await stripe.paymentIntents.create(payload);
 
@@ -1184,7 +1186,7 @@ const stripeWebhookHandler = async (req, res) => {
       });
     }
 
-    const stripeFee = ((((2.9/100) * (amount_received/100)) + 0.30).toFixed(2) * 100).toFixed(0);
+    const stripeFee = ((((2.9 / 100) * (amount_received / 100)) + 0.30).toFixed(2) * 100).toFixed(0);
 
     saveStripePayment({
       ...metadata,
@@ -1207,8 +1209,8 @@ const stripeWebhookHandler = async (req, res) => {
       metadata,
     } = data.object;
 
-    const stripeFee = (((2.9/100) * (amount/100)) + 0.30).toFixed(2) * 100;
-    
+    const stripeFee = (((2.9 / 100) * (amount / 100)) + 0.30).toFixed(2) * 100;
+
     saveStripePayment({
       ...metadata,
       operationId,
@@ -1488,130 +1490,133 @@ const paypalWebhookHandler = async (req, res) => {
       },
     }
   } = req;
-  switch(event_type) {
-      // verify payment completed and amount received
-      case 'CHECKOUT.ORDER.COMPLETED':
-        if (typeof purchase_units === 'undefined' || purchase_units.length === 0) {
-          return res.json({
-            message: 'unhandled webhooks'
-          });
+  switch (event_type) {
+    // verify payment completed and amount received
+    case 'CHECKOUT.ORDER.COMPLETED':
+      if (typeof purchase_units === 'undefined' || purchase_units.length === 0) {
+        return res.json({
+          message: 'unhandled webhooks'
+        });
+      }
+      const purchaseUnit = purchase_units[0];
+      const {
+        amount,
+        custom_id: paymentCustomId,
+        payment_instruction
+      } = purchaseUnit;
+
+      const platformFees = typeof payment_instruction.platform_fees !== 'undefined' ? payment_instruction.platform_fees.reduce((all, next) => all + Number(next.amount.value), 0) : 0;
+      const totalFees = Number(payment_instruction.paypal_fee?.value ?? 0) + platformFees;
+      const donatedAmount = Number(amount.value) - totalFees;
+      await Finance.update({
+        payment_status: (status === 'COMPLETED') ? 'Completed' : 'Pending',
+        checkout_id: resourceId,
+        transfer_id: resourceId,
+        payout_amount: Number(amount.value) - totalFees,
+        payout_succeed: 1,
+        is_recurring: billing_agreement_id ? 1 : 0,
+      }, {
+        where: {
+          donation_id: paymentCustomId
         }
-        const purchaseUnit = purchase_units[0];
-        const {
-          amount,
-          custom_id: paymentCustomId,
-          payment_instruction
-        } = purchaseUnit;
-        
-        const platformFees = typeof payment_instruction.platform_fees !== 'undefined' ? payment_instruction.platform_fees.reduce((all, next) => all + Number(next.amount.value),0) : 0;
-        const totalFees = Number(payment_instruction.paypal_fee?.value ?? 0) + platformFees;
-        const donatedAmount = Number(amount.value) - totalFees;
-        await Finance.update({
-          payment_status: (status === 'COMPLETED') ? 'Completed' : 'Pending',
-          checkout_id: resourceId,
-          transfer_id: resourceId,
-          payout_amount: Number(amount.value) - totalFees,
-          payout_succeed: 1,
-          is_recurring: billing_agreement_id ? 1 : 0,
-        },{
-          where: {
-            donation_id: paymentCustomId
-          }
-        });
-        const finance = await Finance.findOne({
-          where: {
-            donation_id: paymentCustomId
-        }})
-        const donorUser = await User.findOne({
-          where: {
-            id: finance.user_id
-          }
-        });
+      });
+      const finance = await Finance.findOne({
+        where: {
+          donation_id: paymentCustomId
+        }
+      })
+      const donorUser = await User.findOne({
+        where: {
+          id: finance.user_id
+        }
+      });
 
-        const receiverProject = await Project.findOne({
-          where: {
-            id: finance.project_id
-          }
-        });
+      const receiverProject = await Project.findOne({
+        where: {
+          id: finance.project_id
+        }
+      });
 
-        const receiverUser = await User.findOne({
-          where: {
-            id: finance.profile_id
-          }
-        });
-        await sendPaymentEmails({
-          donorLastName: donorUser.last_name,
-          donorFirstName: donorUser.first_name,
-          donorEmail: finance.email,
-          donatedAmount,
-          isSubscription:  false,
-          receiverProject,
-          receiverUser,
-          donorCommentMessage: finance.comment
-        });
+      const receiverUser = await User.findOne({
+        where: {
+          id: finance.profile_id
+        }
+      });
+      await sendPaymentEmails({
+        donorLastName: donorUser.last_name,
+        donorFirstName: donorUser.first_name,
+        donorEmail: finance.email,
+        donatedAmount,
+        isSubscription: false,
+        receiverProject,
+        receiverUser,
+        donorCommentMessage: finance.comment
+      });
       break;
-      case 'PAYMENT.SALE.COMPLETED':
-        const subscription = await RecurringDonars.findOne({
-          where: {
-            subscription_id: billing_agreement_id
-          }});
-        
-        const donatedAmountSubscription = Number(amount.total) - Number(transaction_fee.value) - Number(subscription.tip_amount);
-        await Finance.update({
-          payment_status: (state === 'completed') ? 'Completed' : 'Pending',
-          checkout_id: resourceId,
-          transfer_id: resourceId,
-          is_recurring: billing_agreement_id ? 1 : 0,
-          payout_amount: donatedAmountSubscription,
-          payout_succeed: 0
-        },{
-          where: {
-            donation_id: paymentCustomId
-          }
-        });
-        const financeSubscription = await Finance.findOne({
-          where: {
-            donation_id: paymentCustomId
-        }});
-        if (!financeSubscription) {
-          return res.json({
-            message: `financeSubscription does not exist ${paymentCustomId}`
-          });
+    case 'PAYMENT.SALE.COMPLETED':
+      const subscription = await RecurringDonars.findOne({
+        where: {
+          subscription_id: billing_agreement_id
         }
-        const donorUserSubscription = await User.findOne({
-          where: {
-            id: financeSubscription.user_id
-          }
-        });
+      });
 
-        const receiverProjectSubscription = await Project.findOne({
-          where: {
-            id: financeSubscription.project_id
-          }
+      const donatedAmountSubscription = Number(amount.total) - Number(transaction_fee.value) - Number(subscription.tip_amount);
+      await Finance.update({
+        payment_status: (state === 'completed') ? 'Completed' : 'Pending',
+        checkout_id: resourceId,
+        transfer_id: resourceId,
+        is_recurring: billing_agreement_id ? 1 : 0,
+        payout_amount: donatedAmountSubscription,
+        payout_succeed: 0
+      }, {
+        where: {
+          donation_id: paymentCustomId
+        }
+      });
+      const financeSubscription = await Finance.findOne({
+        where: {
+          donation_id: paymentCustomId
+        }
+      });
+      if (!financeSubscription) {
+        return res.json({
+          message: `financeSubscription does not exist ${paymentCustomId}`
         });
+      }
+      const donorUserSubscription = await User.findOne({
+        where: {
+          id: financeSubscription.user_id
+        }
+      });
 
-        const receiverUserSubscription = await User.findOne({
-          where: {
-            id: financeSubscription.profile_id
-          }
-        });
-        await sendPaymentEmails({
-          donorLastName: donorUserSubscription.last_name,
-          donorFirstName: donorUserSubscription.first_name,
-          donorEmail: financeSubscription.email,
-          donatedAmount: donatedAmountSubscription,
-          isSubscription:  true,
-          receiverProject: receiverProjectSubscription,
-          receiverUser: receiverUserSubscription,
-          donorCommentMessage: financeSubscription.comment
-        });
+      const receiverProjectSubscription = await Project.findOne({
+        where: {
+          id: financeSubscription.project_id
+        }
+      });
+
+      const receiverUserSubscription = await User.findOne({
+        where: {
+          id: financeSubscription.profile_id
+        }
+      });
+      await sendPaymentEmails({
+        donorLastName: donorUserSubscription.last_name,
+        donorFirstName: donorUserSubscription.first_name,
+        donorEmail: financeSubscription.email,
+        donatedAmount: donatedAmountSubscription,
+        isSubscription: true,
+        receiverProject: receiverProjectSubscription,
+        receiverUser: receiverUserSubscription,
+        donorCommentMessage: financeSubscription.comment
+      });
       break;
     // handle subscription status
     case 'BILLING.SUBSCRIPTION.ACTIVATED':
       await RecurringDonars.update({
         subscription_id: resourceId,
         is_recurring: status === 'ACTIVE' ? 1 : 0,
-      },{
+      }, {
         where: {
           subscription_id: {
             [Op.or]: {
@@ -1623,14 +1628,14 @@ const paypalWebhookHandler = async (req, res) => {
       });
       break;
     case 'BILLING.SUBSCRIPTION.CANCELLED':
-        await RecurringDonars.update({
-          is_recurring: false,
-          next_donation_date: null,
-        }, {
-          where: {
-            subscription_id: resourceId,
-          },
-        });
+      await RecurringDonars.update({
+        is_recurring: false,
+        next_donation_date: null,
+      }, {
+        where: {
+          subscription_id: resourceId,
+        },
+      });
     // user onboarding completed
     case 'MERCHANT.ONBOARDING.COMPLETED':
       const donation = await Donation.count({
@@ -1640,7 +1645,7 @@ const paypalWebhookHandler = async (req, res) => {
       });
 
       if (!donation) {
-      await Donation.create({
+        await Donation.create({
           user_id: trackingId,
         });
       }
@@ -1649,38 +1654,38 @@ const paypalWebhookHandler = async (req, res) => {
         paypal_merchant_id: merchantId,
         paypal_onboarding_status: 'ACTIVE'
       }, {
-        where:{
+        where: {
           user_id: trackingId
         }
       })
-     
-        await User.update({
-          is_paypal_connected: 1,
-        }, {
-          where: {
-            id: trackingId
-          }
-        })
-    break;
+
+      await User.update({
+        is_paypal_connected: 1,
+      }, {
+        where: {
+          id: trackingId
+        }
+      })
+      break;
     // handle partner consent revoked
     case 'MERCHANT.PARTNER-CONSENT.REVOKED':
       await Donation.update({
         paypal_merchant_id: null,
         paypal_onboarding_status: 'DECLINED'
       }, {
-        where:{
+        where: {
           user_id: trackingId
         }
       })
-     
-        await User.update({
-          is_paypal_connected: 0,
-        }, {
-          where: {
-            id: trackingId
-          }
-        })
-    break;
+
+      await User.update({
+        is_paypal_connected: 0,
+      }, {
+        where: {
+          id: trackingId
+        }
+      })
+      break;
   }
 
   return res.json({
@@ -1702,7 +1707,7 @@ const paypalOnboardingReturnHandler = async (req, res) => {
         merchant_id
       }
     } = await paypalGetRequest(`/v1/customer/partners/${process.env.PAYPAL_BUSINESS_MERCHANT_ID}/merchant-integrations/${merchantIdInPayPal}`)
-      
+
 
     const user = await User.findByPk(tracking_id);
 
@@ -1736,7 +1741,7 @@ const paypalOnboardingReturnHandler = async (req, res) => {
       }
       await donation.save();
     }
-  } catch (error) {}
+  } catch (error) { }
 
   return res.redirect(`${FrontendUrl}/get-paid-now`);
 }
@@ -1879,7 +1884,7 @@ const createPaypalOrder = async (req, res) => {
       data: donationId
     });
   }
-  
+
   let orderId = null;
 
   if (donation.paypal_merchant_id) {
@@ -1894,7 +1899,7 @@ const createPaypalOrder = async (req, res) => {
       amount,
       customId: donationId
     });
-}
+  }
 
   return res.status(200).json({
     responseCode: 200,
