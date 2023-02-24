@@ -1,6 +1,6 @@
 'use strict';
 
-const { Admin, Project, User, Comment, Finance } = require('../../models');
+const { Admin, Project, User, Comment, Finance, RecurringDonars, sequelize } = require('../../models');
 const { validationResult } = require('express-validator/check');
 const { secret, stripe_private_key } = require('./../../constants/index');
 const bcrypt = require('bcryptjs');
@@ -14,6 +14,7 @@ const config = require(__dirname + '/../../config/server-config.json')[env];
 const emailSender = require('../../helpers/mailSender');
 const __basedir = path.join(__dirname, '../public');
 var Sequelize = require('sequelize');
+const { recurringDonars } = require('../user.controller');
 
 // admin login
 const adminLogin = async (req, res) => {
@@ -109,6 +110,9 @@ const getProjects = async (req, res) => {
     : null;
   let category = req.query.category ? req.query.category : null;
   let filter = req.query.filter ? req.query.filter : null;
+  let order_field = req.query.order_field ? req.query.order_field : 'createdAt';
+  let order_dir = req.query.order_dir ? req.query.order_dir : 'desc';
+
   try {
     const queryParams = req.query;
     // page number is required
@@ -195,14 +199,19 @@ const getProjects = async (req, res) => {
       condition.isFeatured = filter;
     }
     const result = await Project.findAll({
-      where: [{ ...condition }],
+      where: [{
+        ...condition,
+        is_deleted: {
+          [Op.ne]: true,
+        },
+      }],
       include: [
         User,
       ] /* [
        { model: User,
         attributes:[]}
       ], */,
-      order: [['createdAt', 'DESC']],
+      order: [[order_field, order_dir]],
       offset: skip,
       limit: limit,
       attributes: [
@@ -227,7 +236,7 @@ const getProjects = async (req, res) => {
         'isFeatured',
       ],
     });
-    console.log('resultresultresultresult', result);
+
     const totalCount = await Project.count({
       where: [{ ...condition }],
       include: [User],
@@ -253,6 +262,38 @@ const getProjects = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: error.message ? error.message : 'Unexpected error occur.',
+      success: false,
+    });
+  }
+};
+
+const deleteProject = async (req, res) => {
+  const { body } = req;
+  const { id } = body;
+  console.log(id);
+
+  try {
+    await Project.update(
+      {
+        is_deleted: true,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    return res.status(200).json({
+      responseCode: 200,
+      message: 'Project deleted successfully',
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      responseCode: 500,
+      message: error.message
+        ? error.message
+        : 'We are fetching some problem, try again after some time.',
       success: false,
     });
   }
@@ -306,6 +347,9 @@ const getUsers = async (req, res) => {
     ? req.query.searchByStatus
     : null;
   let filter = req.query.filter ? req.query.filter : null;
+  let order_field = req.query.order_field ? req.query.order_field : null;
+  let order_dir = req.query.order_dir ? req.query.order_dir : null;
+
   try {
     const queryParams = req.query;
 
@@ -325,12 +369,14 @@ const getUsers = async (req, res) => {
         success: false,
       });
     }
+
     const Op = Sequelize.Op;
     let condition = {
       is_deleted: {
         [Op.ne]: true,
       },
     };
+    let where = "anonymousUser = 0 AND is_deleted = 0 AND ";
     let condition1 = {};
 
     condition1.anonymousUser = 0;
@@ -356,46 +402,53 @@ const getUsers = async (req, res) => {
           },
         ],
       };
+
+      where += " (first_name LIKE '%" + searchValue + "%' OR last_name LIKE '%" + searchValue + "%') AND ";
     }
     console.log('filter', filter);
 
     if (searchByStatus != null) {
       condition.isActive = searchByStatus;
+      where += " isActive = " + searchByStatus + " AND ";
     }
     if (filter != null) {
       condition.isFeatured = filter;
+      where += " isFeatured = " + filter + " AND ";
     }
     console.log('condition.isFeatured', condition.isFeatured);
 
-    const result = await User.findAll({
-      where: [{ ...condition, ...condition1 }],
-      include: [
-        {
-          model: Project,
-          attributes: [
-            'userId',
-            'total_pledged',
-            //   [
-            //     Sequelize.fn("sum", Sequelize.col("total_pledged")),
-            //     "TotalAmount"
-            //   ],
-            //   [Sequelize.fn("count", Sequelize.col("userId")), "Totalprojects"]
+    where = where.substring(0, where.length - 4);
+    const [result, metadata] = await sequelize.query("select t0.*, t1.project_count, t1.total_pledged, t2.personal_donation from Users t0 left join (select userId, count(id) as project_count, sum(amount) as amount, sum(total_pledged) as total_pledged from Projects group by userId) t1 on t0.id = t1.userId left join (select profile_id, sum(payout_amount) as personal_donation from Finances group by profile_id) t2 on t0.id = t2.profile_id WHERE " + where + " ORDER BY " + order_field + " " + order_dir + " limit " + skip + "," + limit);
+    /*
+        const result = await User.findAll({
+          where: [{ ...condition, ...condition1 }],
+          include: [
+            {
+              model: Project,
+              attributes: [
+                'userId',
+                'total_pledged',
+                //   [
+                //     Sequelize.fn("sum", Sequelize.col("total_pledged")),
+                //     "TotalAmount"
+                //   ],
+                //   [Sequelize.fn("count", Sequelize.col("userId")), "Totalprojects"]
+              ],
+            },
+            {
+              model: Finance,
+              attributes: ['profile_id', 'amount', 'payout_amount'],
+              where: {
+                payment_status: 'Completed',
+              },
+              required: false,
+            },
           ],
-        },
-        {
-          model: Finance,
-          attributes: ['profile_id', 'amount', 'payout_amount'],
-          where: {
-            payment_status: 'Completed',
-          },
-          required: false,
-        },
-      ],
-      order: [['createdAt', 'DESC']],
-      offset: skip,
-      limit: limit,
-    });
-
+          order: [['createdAt', 'DESC']],
+          offset: skip,
+          limit: limit,
+        });
+    */
     const totalCount = await User.count({
       where: [{ ...condition, ...condition1 }],
     });
@@ -423,6 +476,39 @@ const getUsers = async (req, res) => {
     });
   }
 };
+
+const deleteUser = async (req, res) => {
+  const { body } = req;
+  const { id } = body;
+  console.log(id);
+
+  try {
+    await User.update(
+      {
+        is_deleted: true,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    return res.status(200).json({
+      responseCode: 200,
+      message: 'User deleted successfully',
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      responseCode: 500,
+      message: error.message
+        ? error.message
+        : 'We are fetching some problem, try again after some time.',
+      success: false,
+    });
+  }
+};
+
 
 /* ---------- Get All Comments Detail --------- */
 const getComments = async (req, res) => {
@@ -706,6 +792,183 @@ const getDashboard = async (req, res) => {
       },
     });
 
+    const TotalTip = await RecurringDonars.sum('tip_amount');
+
+    const cur_date = new Date();
+    let cur_month = cur_date.getMonth() + 1;
+    if (cur_month < 10)
+      cur_month = "0" + cur_month;
+
+    const cur_day = cur_date.getDate();
+    if (cur_day < 10)
+      cur_day = "0" + cur_day;
+
+    const strToday = cur_date.getFullYear() + "-" + cur_month + "-" + cur_day;
+    console.log("----------------" + strToday)
+
+    let todayEarning = await Finance.sum('website_amount', {
+      where: {
+        payment_status: 'Completed',
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), "%Y-%m-%d"), '=', strToday)
+        ]
+      },
+    });
+
+    if (isNaN(todayEarning))
+      todayEarning = 0;
+
+    let todayTip = await RecurringDonars.sum('tip_amount', {
+      where: Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), "%Y-%m-%d"), '=', strToday)
+    });
+    if (isNaN(todayTip))
+      todayTip = 0;
+
+    console.log("------------------------------", todayEarning, todayTip)
+
+    todayEarning += todayTip;
+
+
+    let onejan = new Date(cur_date.getFullYear(), 0, 1);
+    let weekno = Math.ceil((((cur_date.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
+    if (weekno < 10)
+      weekno = "0" + weekno;
+
+    weekno = cur_date.getFullYear() + "" + weekno;
+    console.log("---------weekno----------" + weekno);
+
+    let weekEarning = await Finance.sum('website_amount', {
+      where: {
+        payment_status: 'Completed',
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn('YEARWEEK', Sequelize.col('createdAt')), '=', weekno)
+        ]
+      },
+    });
+
+    if (isNaN(weekEarning))
+      weekEarning = 0;
+
+    let weekTip = await RecurringDonars.sum('tip_amount', {
+      where: Sequelize.where(Sequelize.fn('YEARWEEK', Sequelize.col('createdAt')), '=', weekno)
+    });
+    if (isNaN(weekTip))
+      weekTip = 0;
+
+    console.log("------------------------------", weekEarning, weekTip)
+
+    weekEarning += weekTip;
+
+    const yyymm = cur_date.getFullYear() + "-" + cur_month;
+
+    let monthEarning = await Finance.sum('website_amount', {
+      where: {
+        payment_status: 'Completed',
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y-%m'), '=', yyymm)
+        ]
+      },
+    });
+
+    if (isNaN(monthEarning))
+      monthEarning = 0;
+
+    let monthTip = await RecurringDonars.sum('tip_amount', {
+      where: Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y-%m'), '=', yyymm)
+    });
+    if (isNaN(monthTip))
+      monthTip = 0;
+
+    console.log("------------------------------", monthEarning, monthTip)
+
+    monthEarning += monthTip;
+
+    const cur_year = cur_date.getFullYear();
+
+    let yearEarning = await Finance.sum('website_amount', {
+      where: {
+        payment_status: 'Completed',
+        [Op.and]: [
+          Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y'), '=', cur_year)
+        ]
+      },
+    });
+
+    if (isNaN(yearEarning))
+      yearEarning = 0;
+
+    let yearTip = await RecurringDonars.sum('tip_amount', {
+      where: Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y'), '=', cur_year)
+    });
+    if (isNaN(yearTip))
+      yearTip = 0;
+
+    console.log("------------------------------", yearEarning, yearTip)
+
+    yearEarning += yearTip;
+
+    const countTip = await RecurringDonars.findOne({
+      where: {
+        tip_amount: {
+          [Op.gt]: 0
+        }
+      },
+      attributes: [
+        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
+      ]
+    });
+
+    console.log("-------------total tip-----------" + TotalTip + " , " + countTip.dataValues.total);
+
+    const avgTip = TotalTip / countTip.dataValues.total;
+
+
+    const totalPayment = await Finance.sum('amount', {
+      where: {
+        payment_status: 'Completed',
+      },
+    });
+
+    const totalPaymentCount = await Finance.findOne({
+      where: {
+        payment_status: 'Completed',
+      },
+      attributes: [
+        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
+      ]
+    });
+
+    const avgOneTimePayment = totalPayment / totalPaymentCount.dataValues.total;
+
+
+    const totalRecurringPayment = await RecurringDonars.sum('amount', {
+    });
+
+    const totalRecurringCount = await RecurringDonars.findOne({
+      attributes: [
+        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
+      ]
+    });
+
+    const avgRecurringPayment = totalRecurringPayment / totalRecurringCount.dataValues.total;
+
+    const nextRecurringPayment = await RecurringDonars.sum('amount', {
+      where: {
+        is_recurring: 1
+      }
+    });
+
+    const totalRaised0 = await Finance.sum('amount', {
+      where: {
+        payment_status: 'Completed',
+      }
+    });
+
+    const totalRaised1 = await RecurringDonars.sum('amount', {
+    });
+
+    const totalRaised = totalRaised0 + totalRaised1;
+
     const TotalPersonalProject = await Project.count({
       where: {
         is_deleted: {
@@ -730,6 +993,8 @@ const getDashboard = async (req, res) => {
         [Op.or]: [{ category: 'community' }, { category: 'Community' }],
       },
     });
+
+
     return res.status(200).json({
       responseCode: 200,
       User: totalUser,
@@ -739,7 +1004,16 @@ const getDashboard = async (req, res) => {
       PersonalProject: TotalPersonalProject,
       CommunityProject: TotalCommunityProject,
       BusinessProject: TotalBusinessProject,
-      TotalEarning: TotalEarning,
+      TotalEarning: TotalEarning + TotalTip,
+      todayEarning: todayEarning,
+      weekEarning: weekEarning,
+      monthEarning: monthEarning,
+      yearEarning: yearEarning,
+      avgTip: avgTip,
+      avgOneTimePayment: avgOneTimePayment,
+      avgRecurringPayment: avgRecurringPayment,
+      nextRecurringPayment: nextRecurringPayment,
+      totalRaised: totalRaised,
       message: 'Dashboard Data',
       success: true,
     });
@@ -915,9 +1189,9 @@ const updateFeaturedUser = async (req, res) => {
       );
 
       const message = featuredValue
-          ? `User Featured Successfully`
-          : `User Un-Featured Successfully`;
-          
+        ? `User Featured Successfully`
+        : `User Un-Featured Successfully`;
+
       return res.status(200).json({
         responseCode: 200,
         data: updateUserStatus,
@@ -937,8 +1211,10 @@ module.exports = {
   adminLogin,
   view,
   getProjects,
+  deleteProject,
   changeProjectStatus,
   getUsers,
+  deleteUser,
   validate,
   changeSelectedUserStatus,
   getDashboard,

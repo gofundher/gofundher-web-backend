@@ -4,13 +4,13 @@ const moment = require('moment');
 const Sequelize = require('sequelize');
 const excel = require('node-excel-export');
 const Op = Sequelize.Op;
-const { Donation, Finance, Project, User } = require('../../models');
+const { sequelize, Donation, Finance, Project, User } = require('../../models');
 const emailSender = require('../../helpers/mailSender');
 
 const getDonations = async (req, res) => {
   try {
     const {
-      query: { limit, page, search, searchByStatus, searchPaymentBy },
+      query: { limit, page, search, searchByStatus, searchPaymentBy, order_field, order_dir },
     } = req;
 
     const paymentBy = ['paypal', 'stripe'].includes(searchPaymentBy) ? searchPaymentBy : null;
@@ -18,6 +18,9 @@ const getDonations = async (req, res) => {
     let pageLimit = parseInt(limit) || 50; // data limit
     let pageNumber = parseInt(page) || 1; // page number
     let offset = pageLimit * (pageNumber - 1); // skip value\
+
+    let where = "payment_status = 'Completed' AND";
+    let whereProject = "";
     let condition = {
       payment_status: 'Completed',
     };
@@ -29,13 +32,37 @@ const getDonations = async (req, res) => {
           [Op.like]: `%${search}%`,
         },
       };
+      whereProject = " `Project.name` LIKE '%" + search + "%'";
     }
     if (paymentBy != null && paymentBy !== '') {
       condition.payment_by = paymentBy;
+      where += " payment_by = '" + paymentBy + "' AND ";
     }
     if (searchByStatus != null && searchByStatus !== '' && searchPaymentBy !== 'stripe') {
       condition.payout_succeed = searchByStatus;
+      where += " payout_succeed = '" + searchByStatus + "' AND ";
     }
+
+    where = where.substring(0, where.length - 4);
+    whereProject = whereProject.substring(0, whereProject.length - 4);
+
+    let order = null;
+    if (order_field == 'project') {
+      // order = [[{ model: Project }, 'name', order_dir]]
+      order = "ORDER BY `Project.name` " + order_dir;
+    }
+    else if (order_field == 'profile') {
+      // order = [[{ model: User }, 'first_name', order_dir]]
+      order = "ORDER BY `fundRaiser_first_name` " + order_dir;
+    } else if (order_field == null) {
+      // order = [['createdAt', 'DESC']];
+      order = "ORDER BY createdAt " + order_dir;
+    } else {
+      // order = [[order_field, order_dir]];
+      order = "ORDER BY " + order_field + " " + order_dir;
+    }
+
+    /*
     const data = await Finance.findAndCountAll({
       where: condition,
       attributes: {
@@ -62,14 +89,26 @@ const getDonations = async (req, res) => {
           attributes: ['first_name', 'last_name'],
         },
       ],
-      order: [['createdAt', 'DESC']],
+      order: order,
       offset: offset,
       limit: pageLimit,
     });
+    */
+    const [tmp, metadata] = await sequelize.query(
+      "SELECT COUNT(id) AS total FROM(SELECT `Finance`.`id`, `Finance`.`user_id`, `Finance`.`full_name`, `Finance`.`email`, `Finance`.`phone`, `Finance`.`is_info_sharable`, `Finance`.`checkout_id`, `Finance`.`is_recurring`, `Finance`.`next_donation_date`, `Finance`.`website_amount`, `Finance`.`tip_percentage`, `Finance`.`donation_id`, `Finance`.`project_id`, `Finance`.`amount`, `Finance`.`payout_amount`, `Finance`.`transferred_amount`, `Finance`.`transferred_via`, `Finance`.`transfer_id`, `Finance`.`reward_id`, `Finance`.`status`, `Finance`.`profile_id`, `Finance`.`direct_donation`, `Finance`.`payment_by`, `Finance`.`payment_status`, `Finance`.`payout_succeed`, `Finance`.`note`, `Finance`.`webhook_event_id`, `Finance`.`comment`, `Finance`.`createdAt`, `Finance`.`updatedAt`, (CASE WHEN project_id is null then profile_id ELSE (SELECT userId FROM Projects mi WHERE mi.id = project_id) END) AS `fundraiser_id`, `Project`.`name` AS `Project.name`, `Project`.`id` AS `Project.id`, `Project`.`url` AS `Project.url`, `User`.`id` AS `User.id`, `User`.`first_name` AS `User.first_name`, `User`.`last_name` AS `User.last_name` FROM `Finances` AS `Finance` LEFT OUTER JOIN `Projects` AS `Project` ON `Finance`.`project_id` = `Project`.`id` LEFT OUTER JOIN `Users` AS `User` ON `Finance`.`user_id` = `User`.`id`) t0 WHERE " + where + " ");
+
+    console.log("------------ total -----------");
+    const total = tmp[0].total;
+    console.log(tmp[0].total);
+
+    const [rows, metadata1] = await sequelize.query(
+      "SELECT * FROM(SELECT `Finance`.`id`, `Finance`.`user_id`, `Finance`.`full_name`, `Finance`.`email`, `Finance`.`phone`, `Finance`.`is_info_sharable`, `Finance`.`checkout_id`, `Finance`.`is_recurring`, `Finance`.`next_donation_date`, `Finance`.`website_amount`, `Finance`.`tip_percentage`, `Finance`.`donation_id`, `Finance`.`project_id`, `Finance`.`amount`, `Finance`.`payout_amount`, `Finance`.`transferred_amount`, `Finance`.`transferred_via`, `Finance`.`transfer_id`, `Finance`.`reward_id`, `Finance`.`status`, `Finance`.`profile_id`, `Finance`.`direct_donation`, `Finance`.`payment_by`, `Finance`.`payment_status`, `Finance`.`payout_succeed`, `Finance`.`note`, `Finance`.`webhook_event_id`, `Finance`.`comment`, `Finance`.`createdAt`, `Finance`.`updatedAt`, (CASE WHEN project_id is null then profile_id ELSE (SELECT userId FROM Projects mi WHERE mi.id = project_id) END) AS `fundraiser_id`,     IF(Finance.project_id IS NULL, `ProfileUsers`.`first_name`, `Project`.u_first_name) AS fundRaiser_first_name, IF(Finance.project_id IS NULL, `ProfileUsers`.`last_name`, `Project`.u_last_name) AS fundRaiser_last_name, IF(Finance.project_id IS NULL, `ProfileUsers`.email, `Project`.u_email) AS fundRaiser_email,`Project`.`name` AS `Project.name`, `Project`.`id` AS `Project.id`, `Project`.`url` AS `Project.url`, `User`.`id` AS `User.id`, `User`.`first_name` AS `User.first_name`, `User`.`last_name` AS `User.last_name` FROM `Finances` AS `Finance` LEFT OUTER JOIN (SELECT tt0.id, tt0.name, tt0.url, tt1.first_name AS u_first_name, tt1.last_name AS u_last_name, tt1.email AS u_email FROM `Projects` AS tt0 LEFT JOIN `Users` AS `tt1` ON `tt0`.`userId` = `tt1`.`id`)  AS `Project` ON `Finance`.`project_id` = `Project`.`id` LEFT OUTER JOIN `Users` AS `User` ON `Finance`.`user_id` = `User`.`id` LEFT JOIN `Users` AS `ProfileUsers` ON `Finance`.`profile_id` = `ProfileUsers`.`id`) t0 WHERE " + where + " " + order + " LIMIT " + offset + ", " + pageLimit);
+
+    let data = { count: total, rows: rows };
     let result = [];
     if (data && data.rows && data.rows.length) {
       for (let index = 0; index < data.rows.length; index++) {
-        let element = data.rows[index].dataValues;
+        let element = data.rows[index];
         if (element.fundraiser_id) {
           let fundRaiserInfo = await User.findOne({
             where: {
@@ -80,7 +119,20 @@ const getDonations = async (req, res) => {
               model: Donation,
             },
           });
-          result.push({ ...element, fundRaiserInfo });
+          result.push({
+            ...element,
+            fundRaiserInfo,
+            Project: {
+              id: element['Project.id'],
+              name: element['Project.name'],
+              url: element['Project.url']
+            },
+            User: {
+              id: element["User.id"],
+              first_name: element["User.first_name"],
+              last_name: element["User.last_name"],
+            }
+          });
         } else {
           result.push(element);
         }
@@ -340,27 +392,27 @@ const exportReport = async (req, res) => {
         : '-',
       amount: amount
         ? new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(amount)
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(amount)
         : '$0.00',
       platformFee: website_amount
         ? new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(website_amount)
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(website_amount)
         : '$0.00',
       transferAmount: payout_amount
         ? new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(payout_amount)
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(payout_amount)
         : '$0.00',
       paymentDate: createdAt ? moment(createdAt).format('MMM DD, YYYY') : '-',
       status: payout_succeed ? 'Paid' : 'Unpaid',

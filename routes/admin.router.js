@@ -19,6 +19,11 @@ router.get(
   // authentication.adminAuthentication,
   adminController.getProjects,
 );
+router.post(
+  '/deleteProject',
+  // authentication.adminAuthentication,
+  adminController.deleteProject,
+);
 router.post('/updateFeaturedProjects', adminController.updateFeaturedProjects);
 router.post('/updateFeaturedUsers', adminController.updateFeaturedUser);
 router.post('/changestatus', adminController.changeProjectStatus);
@@ -26,6 +31,11 @@ router.get(
   '/getusers',
   authentication.adminAuthentication,
   adminController.getUsers,
+);
+router.post(
+  '/deleteUser',
+  // authentication.adminAuthentication,
+  adminController.deleteUser,
 );
 router.post(
   '/changeSelectedUserStatus',
@@ -80,7 +90,7 @@ router.get(
   exportReport,
 );
 
-router.get('/contact-query',authentication.adminAuthentication, getContactusList)
+router.get('/contact-query', authentication.adminAuthentication, getContactusList)
 
 router.post('/change-status', authentication.adminAuthentication, changeStatus)
 module.exports = router;
