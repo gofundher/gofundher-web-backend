@@ -419,6 +419,7 @@ const getUsers = async (req, res) => {
 
     where = where.substring(0, where.length - 4);
     const [result, metadata] = await sequelize.query("select t0.*, t1.project_count, t1.total_pledged, t2.personal_donation from Users t0 left join (select userId, count(id) as project_count, sum(amount) as amount, sum(total_pledged) as total_pledged from Projects group by userId) t1 on t0.id = t1.userId left join (select profile_id, sum(payout_amount) as personal_donation from Finances group by profile_id) t2 on t0.id = t2.profile_id WHERE " + where + " ORDER BY " + order_field + " " + order_dir + " limit " + skip + "," + limit);
+
     /*
         const result = await User.findAll({
           where: [{ ...condition, ...condition1 }],
@@ -476,6 +477,35 @@ const getUsers = async (req, res) => {
     });
   }
 };
+
+const getUserProfile = async (req, res) => {
+  const { id } = req.query;
+  try {
+    const user = await User.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (user === null) {
+      return res.status(400).json({
+        responseCode: 400,
+        message: 'Selected user not found.',
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      responseCode: 200,
+      data: user,
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message ? error.message : 'Unexpected error occure.',
+      success: false,
+    });
+  }
+}
 
 const deleteUser = async (req, res) => {
   const { body } = req;
@@ -786,177 +816,32 @@ const getDashboard = async (req, res) => {
       },
     });
 
-    const TotalEarning = await Finance.sum('website_amount', {
-      where: {
-        payment_status: 'Completed',
-      },
-    });
+    const [totalEarning] = await sequelize.query(
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount - website_amount) * 0.05 AS total_fee FROM Finances WHERE payment_status='Completed' ");
 
-    const TotalTip = await RecurringDonars.sum('tip_amount');
+    const [todayEarning] = await sequelize.query(
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount - website_amount) * 0.05 AS total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT('createdAt', '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d') ");
 
-    const cur_date = new Date();
-    let cur_month = cur_date.getMonth() + 1;
-    if (cur_month < 10)
-      cur_month = "0" + cur_month;
+    const [weekEarning] = await sequelize.query(
+      "SELECT SUM(website_amount) * 0.05 AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEARWEEK('createdAt') = YEARWEEK(NOW())");
 
-    const cur_day = cur_date.getDate();
-    if (cur_day < 10)
-      cur_day = "0" + cur_day;
+    const [monthEarning] = await sequelize.query(
+      "SELECT SUM(website_amount) * 0.05 AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT('createdAt', '%Y-%m') = YEARWEEK(NOW(), '%Y-%m')");
 
-    const strToday = cur_date.getFullYear() + "-" + cur_month + "-" + cur_day;
-    console.log("----------------" + strToday)
+    const [yearEarning] = await sequelize.query(
+      "SELECT SUM(website_amount) * 0.05 AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEAR('createdAt') = YEAR(NOW())");
 
-    let todayEarning = await Finance.sum('website_amount', {
-      where: {
-        payment_status: 'Completed',
-        [Op.and]: [
-          Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), "%Y-%m-%d"), '=', strToday)
-        ]
-      },
-    });
+    const [avgTip] = await sequelize.query(
+      "SELECT AVG(website_amount) AS value FROM Finances WHERE payment_status='Completed'");
 
-    if (isNaN(todayEarning))
-      todayEarning = 0;
+    const [avgOneTimePayment] = await sequelize.query(
+      "SELECT AVG(amount) AS value FROM Finances WHERE payment_status='Completed'");
 
-    let todayTip = await RecurringDonars.sum('tip_amount', {
-      where: Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), "%Y-%m-%d"), '=', strToday)
-    });
-    if (isNaN(todayTip))
-      todayTip = 0;
+    const [avgRecurring] = await sequelize.query(
+      "SELECT AVG(amount) AS value FROM Finances WHERE is_recurring=1 AND payment_status='Completed'");
 
-    console.log("------------------------------", todayEarning, todayTip)
-
-    todayEarning += todayTip;
-
-
-    let onejan = new Date(cur_date.getFullYear(), 0, 1);
-    let weekno = Math.ceil((((cur_date.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
-    if (weekno < 10)
-      weekno = "0" + weekno;
-
-    weekno = cur_date.getFullYear() + "" + weekno;
-    console.log("---------weekno----------" + weekno);
-
-    let weekEarning = await Finance.sum('website_amount', {
-      where: {
-        payment_status: 'Completed',
-        [Op.and]: [
-          Sequelize.where(Sequelize.fn('YEARWEEK', Sequelize.col('createdAt')), '=', weekno)
-        ]
-      },
-    });
-
-    if (isNaN(weekEarning))
-      weekEarning = 0;
-
-    let weekTip = await RecurringDonars.sum('tip_amount', {
-      where: Sequelize.where(Sequelize.fn('YEARWEEK', Sequelize.col('createdAt')), '=', weekno)
-    });
-    if (isNaN(weekTip))
-      weekTip = 0;
-
-    console.log("------------------------------", weekEarning, weekTip)
-
-    weekEarning += weekTip;
-
-    const yyymm = cur_date.getFullYear() + "-" + cur_month;
-
-    let monthEarning = await Finance.sum('website_amount', {
-      where: {
-        payment_status: 'Completed',
-        [Op.and]: [
-          Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y-%m'), '=', yyymm)
-        ]
-      },
-    });
-
-    if (isNaN(monthEarning))
-      monthEarning = 0;
-
-    let monthTip = await RecurringDonars.sum('tip_amount', {
-      where: Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y-%m'), '=', yyymm)
-    });
-    if (isNaN(monthTip))
-      monthTip = 0;
-
-    console.log("------------------------------", monthEarning, monthTip)
-
-    monthEarning += monthTip;
-
-    const cur_year = cur_date.getFullYear();
-
-    let yearEarning = await Finance.sum('website_amount', {
-      where: {
-        payment_status: 'Completed',
-        [Op.and]: [
-          Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y'), '=', cur_year)
-        ]
-      },
-    });
-
-    if (isNaN(yearEarning))
-      yearEarning = 0;
-
-    let yearTip = await RecurringDonars.sum('tip_amount', {
-      where: Sequelize.where(Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), '%Y'), '=', cur_year)
-    });
-    if (isNaN(yearTip))
-      yearTip = 0;
-
-    console.log("------------------------------", yearEarning, yearTip)
-
-    yearEarning += yearTip;
-
-    const countTip = await RecurringDonars.findOne({
-      where: {
-        tip_amount: {
-          [Op.gt]: 0
-        }
-      },
-      attributes: [
-        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
-      ]
-    });
-
-    console.log("-------------total tip-----------" + TotalTip + " , " + countTip.dataValues.total);
-
-    const avgTip = TotalTip / countTip.dataValues.total;
-
-
-    const totalPayment = await Finance.sum('amount', {
-      where: {
-        payment_status: 'Completed',
-      },
-    });
-
-    const totalPaymentCount = await Finance.findOne({
-      where: {
-        payment_status: 'Completed',
-      },
-      attributes: [
-        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
-      ]
-    });
-
-    const avgOneTimePayment = totalPayment / totalPaymentCount.dataValues.total;
-
-
-    const totalRecurringPayment = await RecurringDonars.sum('amount', {
-    });
-
-    const totalRecurringCount = await RecurringDonars.findOne({
-      attributes: [
-        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
-      ]
-    });
-
-    const avgRecurringPayment = totalRecurringPayment / totalRecurringCount.dataValues.total;
-
-    const nextRecurringPayment = await RecurringDonars.sum('amount', {
-      where: {
-        is_recurring: 1
-      }
-    });
+    const [nextRecurringPayment] = await sequelize.query(
+      "SELECT AVG(amount) AS value FROM Finances WHERE is_recurring=1 AND payment_status='Completed' AND DATE_FORMAT('createdAt', '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')");
 
     const totalRaised0 = await Finance.sum('amount', {
       where: {
@@ -1004,15 +889,15 @@ const getDashboard = async (req, res) => {
       PersonalProject: TotalPersonalProject,
       CommunityProject: TotalCommunityProject,
       BusinessProject: TotalBusinessProject,
-      TotalEarning: TotalEarning + TotalTip,
-      todayEarning: todayEarning,
-      weekEarning: weekEarning,
-      monthEarning: monthEarning,
-      yearEarning: yearEarning,
-      avgTip: avgTip,
-      avgOneTimePayment: avgOneTimePayment,
-      avgRecurringPayment: avgRecurringPayment,
-      nextRecurringPayment: nextRecurringPayment,
+      TotalEarning: parseFloat(totalEarning[0].total_tip + totalEarning[0].total_fee),
+      todayEarning: parseFloat(todayEarning[0].total_tip + todayEarning[0].total_fee),
+      weekEarning: parseFloat(weekEarning[0].total_tip + weekEarning[0].total_fee),
+      monthEarning: parseFloat(monthEarning[0].total_tip + monthEarning[0].total_fee),
+      yearEarning: parseFloat(yearEarning[0].total_tip + yearEarning[0].total_fee),
+      avgTip: parseFloat(avgTip[0].value),
+      avgOneTimePayment: parseFloat(avgOneTimePayment[0].value),
+      avgRecurring: parseFloat(avgRecurring[0].value),
+      nextRecurringPayment: parseFloat(nextRecurringPayment[0].value),
       totalRaised: totalRaised,
       message: 'Dashboard Data',
       success: true,
@@ -1214,6 +1099,7 @@ module.exports = {
   deleteProject,
   changeProjectStatus,
   getUsers,
+  getUserProfile,
   deleteUser,
   validate,
   changeSelectedUserStatus,

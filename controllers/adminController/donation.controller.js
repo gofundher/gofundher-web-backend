@@ -114,7 +114,7 @@ const getDonations = async (req, res) => {
             where: {
               id: element.fundraiser_id,
             },
-            attributes: ['first_name', 'last_name', 'email'],
+            attributes: ['id', 'first_name', 'last_name', 'email', 'profileUrl'],
             include: {
               model: Donation,
             },
@@ -202,6 +202,67 @@ const updatePayoutStatus = async (req, res) => {
       responseCode: 200,
       message: 'Status updated successfully',
       // data:{count:data.count, rows:result},
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message ? error.message : 'Unexpected error occur.',
+      success: false,
+    });
+  }
+};
+
+const getMonthlyDonations = async (req, res) => {
+  try {
+    const {
+      query: { limit, page, search, searchByStatus, searchPaymentBy, order_field, order_dir },
+    } = req;
+
+    const paymentBy = ['paypal', 'stripe'].includes(searchPaymentBy) ? searchPaymentBy : null;
+
+    let pageLimit = parseInt(limit) || 50; // data limit
+    let pageNumber = parseInt(page) || 1; // page number
+    let offset = pageLimit * (pageNumber - 1); // skip value\
+
+    let where = " WHERE payment_status = 'Completed' AND";
+    let where_t0 = "";
+    if (search) {
+      where_t0 = "WHERE year_month LIKE '%" + search + "%'";
+    }
+
+    if (paymentBy != null && paymentBy !== '') {
+      where += " payment_by = '" + paymentBy + "' AND ";
+    }
+    if (searchByStatus != null && searchByStatus !== '' && searchPaymentBy !== 'stripe') {
+      where += " payout_succeed = '" + searchByStatus + "' AND ";
+    }
+
+    where = where.substring(0, where.length - 4);
+
+    let order = null;
+    if (order_field == null) {
+      // order = [['createdAt', 'DESC']];
+      order = "ORDER BY year_month " + order_dir;
+    } else if (order_field == 'year_month') {
+      // order = [[order_field, order_dir]];
+      order = "ORDER BY `" + order_field + "` " + order_dir;
+    } else {
+      // order = [[order_field, order_dir]];
+      order = "ORDER BY " + order_field + " " + order_dir;
+    }
+    const [tmp, metadata] = await sequelize.query(
+      "SELECT COUNT(DISTINCT `year_month`) AS total FROM (SELECT DATE_FORMAT(createdAt, '%Y-%m') AS `year_month` FROM Finances " + where + ") AS t0 " + where_t0);
+
+    console.log("------------ total -----------");
+    const total = tmp[0].total;
+    console.log(tmp);
+
+    const [rows, metadata1] = await sequelize.query(
+      "SELECT * FROM (SELECT DATE_FORMAT(createdAt, '%Y-%m') AS `year_month`, SUM(amount) AS amount, SUM(website_amount) AS website_amount, SUM(amount-website_amount)*0.05 AS tip_amount, SUM(payout_amount) AS payout_amount FROM Finances " + where + " GROUP BY DATE_FORMAT(createdAt, '%Y-%m')) AS t0 " + where_t0 + " " + order + " LIMIT " + offset + ", " + pageLimit);
+
+    return res.status(200).json({
+      responseCode: 200,
+      data: { count: total, rows: rows },
       success: true,
     });
   } catch (error) {
@@ -434,6 +495,7 @@ const exportReport = async (req, res) => {
 
 module.exports = {
   getDonations,
+  getMonthlyDonations,
   updatePayoutStatus,
   exportReport,
 };

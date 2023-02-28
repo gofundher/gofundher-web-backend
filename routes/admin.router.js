@@ -8,6 +8,7 @@ const authentication = require('../helpers/tokenVerification');
 const adminController = require('../controllers/adminController/auth.controller');
 const {
   getDonations,
+  getMonthlyDonations,
   updatePayoutStatus,
   exportReport,
 } = require('../controllers/adminController/donation.controller');
@@ -32,6 +33,13 @@ router.get(
   authentication.adminAuthentication,
   adminController.getUsers,
 );
+
+router.get(
+  '/get-user-profile',
+  authentication.adminAuthentication,
+  adminController.getUserProfile,
+);
+
 router.post(
   '/deleteUser',
   // authentication.adminAuthentication,
@@ -82,6 +90,12 @@ router.post(
   '/donation/update-status',
   authentication.adminAuthentication,
   updatePayoutStatus,
+);
+
+router.get(
+  '/monthly-donations',
+  authentication.adminAuthentication,
+  getMonthlyDonations,
 );
 
 router.get(
