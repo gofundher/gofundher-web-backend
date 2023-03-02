@@ -820,16 +820,16 @@ const getDashboard = async (req, res) => {
       "SELECT SUM(website_amount) AS total_tip, SUM(amount - website_amount) * 0.05 AS total_fee FROM Finances WHERE payment_status='Completed' ");
 
     const [todayEarning] = await sequelize.query(
-      "SELECT SUM(website_amount) AS total_tip, SUM(amount - website_amount) * 0.05 AS total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT('createdAt', '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d') ");
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount - website_amount) * 0.05 AS total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT(createdAt, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d') ");
 
     const [weekEarning] = await sequelize.query(
-      "SELECT SUM(website_amount) * 0.05 AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEARWEEK('createdAt') = YEARWEEK(NOW())");
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEARWEEK(createdAt) = YEARWEEK(NOW())");
 
     const [monthEarning] = await sequelize.query(
-      "SELECT SUM(website_amount) * 0.05 AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT('createdAt', '%Y-%m') = YEARWEEK(NOW(), '%Y-%m')");
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT(createdAt, '%Y-%m') = YEARWEEK(NOW(), '%Y-%m')");
 
     const [yearEarning] = await sequelize.query(
-      "SELECT SUM(website_amount) * 0.05 AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEAR('createdAt') = YEAR(NOW())");
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEAR(createdAt) = YEAR(NOW())");
 
     const [avgTip] = await sequelize.query(
       "SELECT AVG(website_amount) AS value FROM Finances WHERE payment_status='Completed'");
@@ -889,11 +889,11 @@ const getDashboard = async (req, res) => {
       PersonalProject: TotalPersonalProject,
       CommunityProject: TotalCommunityProject,
       BusinessProject: TotalBusinessProject,
-      TotalEarning: parseFloat(totalEarning[0].total_tip + totalEarning[0].total_fee),
-      todayEarning: parseFloat(todayEarning[0].total_tip + todayEarning[0].total_fee),
-      weekEarning: parseFloat(weekEarning[0].total_tip + weekEarning[0].total_fee),
-      monthEarning: parseFloat(monthEarning[0].total_tip + monthEarning[0].total_fee),
-      yearEarning: parseFloat(yearEarning[0].total_tip + yearEarning[0].total_fee),
+      TotalEarning: parseFloat(totalEarning[0].total_tip) + parseFloat(totalEarning[0].total_fee),
+      todayEarning: parseFloat(todayEarning[0].total_tip) + parseFloat(todayEarning[0].total_fee),
+      weekEarning: parseFloat(weekEarning[0].total_tip) + parseFloat(weekEarning[0].total_fee),
+      monthEarning: parseFloat(monthEarning[0].total_tip) + parseFloat(monthEarning[0].total_fee),
+      yearEarning: parseFloat(yearEarning[0].total_tip) + parseFloat(yearEarning[0].total_fee),
       avgTip: parseFloat(avgTip[0].value),
       avgOneTimePayment: parseFloat(avgOneTimePayment[0].value),
       avgRecurring: parseFloat(avgRecurring[0].value),
