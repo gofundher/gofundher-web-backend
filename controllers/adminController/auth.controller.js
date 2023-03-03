@@ -403,7 +403,7 @@ const getUsers = async (req, res) => {
         ],
       };
 
-      where += " (first_name LIKE '%" + searchValue + "%' OR last_name LIKE '%" + searchValue + "%') AND ";
+      where += " (email LIKE '%" + searchValue + "%' OR first_name LIKE '%" + searchValue + "%' OR last_name LIKE '%" + searchValue + "%') AND ";
     }
     console.log('filter', filter);
 
