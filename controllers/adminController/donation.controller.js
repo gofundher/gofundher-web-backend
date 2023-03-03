@@ -19,26 +19,15 @@ const getDonations = async (req, res) => {
     let pageNumber = parseInt(page) || 1; // page number
     let offset = pageLimit * (pageNumber - 1); // skip value\
 
-    let where = "payment_status = 'Completed' AND";
-    let condition = {
-      payment_status: 'Completed',
-    };
+    let where = " WHERE payment_status = 'Completed' AND";
 
-    let projectCondition = null;
     if (search) {
-      projectCondition = {
-        name: {
-          [Op.like]: `%${search}%`,
-        },
-      };
-      where = " `Project.name` LIKE '%" + search + "%' AND ";
+      where += " `Project.name` LIKE '%" + search + "%' AND ";
     }
     if (paymentBy != null && paymentBy !== '') {
-      condition.payment_by = paymentBy;
       where += " payment_by = '" + paymentBy + "' AND ";
     }
     if (searchByStatus != null && searchByStatus !== '' && searchPaymentBy !== 'stripe') {
-      condition.payout_succeed = searchByStatus;
       where += " payout_succeed = '" + searchByStatus + "' AND ";
     }
 
@@ -92,15 +81,86 @@ const getDonations = async (req, res) => {
       limit: pageLimit,
     });
     */
-    const [tmp, metadata] = await sequelize.query(
-      "SELECT COUNT(id) AS total FROM(SELECT `Finance`.`id`, `Finance`.`user_id`, `Finance`.`full_name`, `Finance`.`email`, `Finance`.`phone`, `Finance`.`is_info_sharable`, `Finance`.`checkout_id`, `Finance`.`is_recurring`, `Finance`.`next_donation_date`, `Finance`.`website_amount`, `Finance`.`tip_percentage`, `Finance`.`donation_id`, `Finance`.`project_id`, `Finance`.`amount`, `Finance`.`payout_amount`, `Finance`.`transferred_amount`, `Finance`.`transferred_via`, `Finance`.`transfer_id`, `Finance`.`reward_id`, `Finance`.`status`, `Finance`.`profile_id`, `Finance`.`direct_donation`, `Finance`.`payment_by`, `Finance`.`payment_status`, `Finance`.`payout_succeed`, `Finance`.`note`, `Finance`.`webhook_event_id`, `Finance`.`comment`, `Finance`.`createdAt`, `Finance`.`updatedAt`, (CASE WHEN project_id is null then profile_id ELSE (SELECT userId FROM Projects mi WHERE mi.id = project_id) END) AS `fundraiser_id`, `Project`.`name` AS `Project.name`, `Project`.`id` AS `Project.id`, `Project`.`url` AS `Project.url`, `User`.`id` AS `User.id`, `User`.`first_name` AS `User.first_name`, `User`.`last_name` AS `User.last_name` FROM `Finances` AS `Finance` LEFT OUTER JOIN `Projects` AS `Project` ON `Finance`.`project_id` = `Project`.`id` LEFT OUTER JOIN `Users` AS `User` ON `Finance`.`user_id` = `User`.`id`) t0 WHERE " + where + " ");
+    const subquery = `SELECT
+   Finance.id,
+   Finance.user_id,
+   Finance.full_name,
+   Finance.email,
+   Finance.phone,
+   Finance.is_info_sharable,
+   Finance.checkout_id,
+   Finance.is_recurring,
+   Finance.next_donation_date,
+   Finance.website_amount,
+   Finance.tip_percentage,
+   ( Finance.amount - Finance.website_amount ) * 0.05 AS tip_amount,
+   Finance.donation_id,
+   Finance.project_id,
+   Finance.amount,
+   Finance.payout_amount,
+   Finance.transferred_amount,
+   Finance.transferred_via,
+   Finance.transfer_id,
+   Finance.reward_id,
+   Finance.status,
+   Finance.profile_id,
+   Finance.direct_donation,
+   Finance.payment_by,
+   Finance.payment_status,
+   Finance.payout_succeed,
+   Finance.note,
+   Finance.webhook_event_id,
+   Finance.comment,
+   Finance.createdAt,
+   Finance.updatedAt,
+   
+   IF( Finance.project_id IS NULL, ProfileUsers.id, Project.u_id ) AS fundraiser_id,
+   IF( Finance.project_id IS NULL, ProfileUsers.first_name, Project.u_first_name ) AS fundraiser_first_name,
+   IF( Finance.project_id IS NULL, ProfileUsers.last_name, Project.u_last_name ) AS fundraiser_last_name,
+   IF( Finance.project_id IS NULL, ProfileUsers.email, Project.u_email ) AS fundraiser_email,
+   IF( Finance.project_id IS NULL, ProfileUsers.profileUrl, Project.u_profileUrl ) AS fundraiser_profileUrl,
+   IF( Finance.project_id IS NULL, ProfileUsers.is_acc_updated, Project.u_is_acc_updated ) AS fundraiser_is_acc_updated,
+   IF( Finance.project_id IS NULL, ProfileUsers.is_paypal_connected, Project.u_is_paypal_connected ) AS fundraiser_is_paypal_connected,
+   
+   Project.id AS 'Project.id',
+   Project.name AS 'Project.name',
+   Project.url AS 'Project.url',
+   User.id AS 'User.id',
+   User.first_name AS 'User.first_name',
+   User.last_name AS 'User.last_name',
+   User.profileUrl AS 'User.profileUrl' 
+ FROM
+   Finances AS Finance
+   LEFT JOIN (
+   SELECT
+     tt0.id,
+     tt0.name,
+     tt0.url,
+     tt1.id AS u_id,
+     tt1.first_name AS u_first_name,
+     tt1.last_name AS u_last_name,
+     tt1.email AS u_email,
+     tt1.profileUrl AS u_profileUrl,
+     tt1.is_acc_updated AS u_is_acc_updated,
+     tt1.is_paypal_connected  AS u_is_paypal_connected
+   FROM
+     Projects AS tt0
+     LEFT JOIN Users AS tt1 ON tt0.userId = tt1.id 
+   ) AS Project ON Finance.project_id = Project.id
+   LEFT JOIN Users AS User ON Finance.user_id = User.id
+   LEFT JOIN Users AS ProfileUsers ON Finance.profile_id = ProfileUsers.id `;
+
+    const [tmp] = await sequelize.query(
+      `SELECT
+          COUNT(*) AS total 
+        FROM(` + subquery + `) t0 ` + where + " ");
 
     console.log("------------ total -----------");
     const total = tmp[0].total;
     console.log(tmp[0].total);
 
-    const [rows, metadata1] = await sequelize.query(
-      "SELECT * FROM(SELECT `Finance`.`id`, `Finance`.`user_id`, `Finance`.`full_name`, `Finance`.`email`, `Finance`.`phone`, `Finance`.`is_info_sharable`, `Finance`.`checkout_id`, `Finance`.`is_recurring`, `Finance`.`next_donation_date`, `Finance`.`website_amount`, `Finance`.`tip_percentage`, (`Finance`.amount - `Finance`.website_amount) * 0.05 AS tip_amount, `Finance`.`donation_id`, `Finance`.`project_id`, `Finance`.`amount`, `Finance`.`payout_amount`, `Finance`.`transferred_amount`, `Finance`.`transferred_via`, `Finance`.`transfer_id`, `Finance`.`reward_id`, `Finance`.`status`, `Finance`.`profile_id`, `Finance`.`direct_donation`, `Finance`.`payment_by`, `Finance`.`payment_status`, `Finance`.`payout_succeed`, `Finance`.`note`, `Finance`.`webhook_event_id`, `Finance`.`comment`, `Finance`.`createdAt`, `Finance`.`updatedAt`, (CASE WHEN project_id is null then profile_id ELSE (SELECT userId FROM Projects mi WHERE mi.id = project_id) END) AS `fundraiser_id`,     IF(Finance.project_id IS NULL, `ProfileUsers`.`first_name`, `Project`.u_first_name) AS fundRaiser_first_name, IF(Finance.project_id IS NULL, `ProfileUsers`.`last_name`, `Project`.u_last_name) AS fundRaiser_last_name, IF(Finance.project_id IS NULL, `ProfileUsers`.email, `Project`.u_email) AS fundRaiser_email,`Project`.`name` AS `Project.name`, `Project`.`id` AS `Project.id`, `Project`.`url` AS `Project.url`, `User`.`id` AS `User.id`, `User`.`first_name` AS `User.first_name`, `User`.`last_name` AS `User.last_name` FROM `Finances` AS `Finance` LEFT OUTER JOIN (SELECT tt0.id, tt0.name, tt0.url, tt1.first_name AS u_first_name, tt1.last_name AS u_last_name, tt1.email AS u_email FROM `Projects` AS tt0 LEFT JOIN `Users` AS `tt1` ON `tt0`.`userId` = `tt1`.`id`)  AS `Project` ON `Finance`.`project_id` = `Project`.`id` LEFT OUTER JOIN `Users` AS `User` ON `Finance`.`user_id` = `User`.`id` LEFT JOIN `Users` AS `ProfileUsers` ON `Finance`.`profile_id` = `ProfileUsers`.`id`) t0 WHERE " + where + " " + order + " LIMIT " + offset + ", " + pageLimit);
+    const [rows] = await sequelize.query(
+      `SELECT *  FROM (` + subquery + `) t0 ` + where + " " + order + " LIMIT " + offset + ", " + pageLimit);
 
     let data = { count: total, rows: rows };
     let result = [];
@@ -108,6 +168,7 @@ const getDonations = async (req, res) => {
       for (let index = 0; index < data.rows.length; index++) {
         let element = data.rows[index];
         if (element.fundraiser_id) {
+          /*
           let fundRaiserInfo = await User.findOne({
             where: {
               id: element.fundraiser_id,
@@ -117,9 +178,18 @@ const getDonations = async (req, res) => {
               model: Donation,
             },
           });
+          */
           result.push({
             ...element,
-            fundRaiserInfo,
+            fundRaiserInfo: {
+              id: element['fundraiser_id'],
+              first_name: element['fundraiser_first_name'],
+              last_name: element['fundraiser_last_name'],
+              email: element['fundraiser_email'],
+              profileUrl: element['fundraiser_profileUrl'],
+              is_acc_updated: element['fundraiser_is_acc_updated'],
+              is_paypal_connected: element['fundraiser_is_paypal_connected']
+            },
             Project: {
               id: element['Project.id'],
               name: element['Project.name'],
@@ -222,7 +292,7 @@ const getMonthlyDonations = async (req, res) => {
     let pageNumber = parseInt(page) || 1; // page number
     let offset = pageLimit * (pageNumber - 1); // skip value\
 
-    let where = " WHERE payment_status = 'Completed' AND";
+    let where = " is_recurring = 1 AND payment_status = 'Completed' AND";
     let where_t0 = "";
     if (search) {
       where_t0 = " WHERE (project_name LIKE '%" + search + "%' OR payer_name LIKE '%" + search + "%' OR receiver_name LIKE '%" + search + "%') AND ";
@@ -246,74 +316,78 @@ const getMonthlyDonations = async (req, res) => {
       // order = [[order_field, order_dir]];
       order = "ORDER BY " + order_field + " " + order_dir;
     }
+    const subquery =
+      `SELECT
+            user_id, project_id, null as profile_id, payment_by,
+            start_date, end_date, amount, website_amount,
+            tip_amount, payout_amount,
+            1 AS is_project,
+            CONCAT(t1.first_name, ' ', t1.last_name) AS payer_name,
+            t2.name AS project_name,
+            t2.url AS project_url,
+            CONCAT(t2.first_name, ' ', t2.last_name) AS receiver_name
+          FROM
+            (
+            SELECT
+              user_id, project_id, payment_by,
+              MIN( createdAt) AS start_date,
+              MAX( createdAt) AS end_date,
+              SUM( amount ) AS amount,
+              SUM( website_amount ) AS website_amount,
+              SUM( amount - website_amount )* 0.05 AS tip_amount,
+              SUM( payout_amount ) AS payout_amount 
+          FROM
+            Finances 
+          WHERE NOT ISNULL(project_id) AND ` + where + `
+          GROUP BY user_id, project_id, payment_by) t0
+          LEFT JOIN Users t1 ON t0.user_id = t1.id
+          LEFT JOIN 
+            (SELECT 
+                Projects.id, 
+                Projects.name, 
+								Projects.url,
+                userId, 
+                Users.first_name, 
+                Users.last_name 
+              FROM Projects 
+              LEFT JOIN Users ON Projects.userId = Users.id) t2 ON t0.project_id = t2.id 
+        UNION(
+          SELECT
+              user_id, null as project_id, profile_id, payment_by,
+              start_date, end_date, amount, website_amount,
+              tip_amount, payout_amount,
+              0 AS is_project,
+              CONCAT(t1.first_name, ' ', t1.last_name) AS payer_name,
+              CONCAT(t2.first_name, ' ', t2.last_name) AS project_name,
+              t2.profileUrl AS project_url,
+              CONCAT(t2.first_name, ' ', t2.last_name) AS receiver_name
+            FROM
+              (
+              SELECT
+                user_id, profile_id, payment_by,
+                MIN( createdAt) AS start_date,
+                MAX( createdAt) AS end_date,
+                SUM( amount ) AS amount,
+                SUM( website_amount ) AS website_amount,
+                SUM( amount - website_amount )* 0.05 AS tip_amount,
+                SUM( payout_amount ) AS payout_amount 
+            FROM
+              Finances 
+            WHERE NOT ISNULL(profile_id) AND ` + where + `
+            GROUP BY user_id, profile_id, payment_by) t0
+            LEFT JOIN Users t1 ON t0.user_id = t1.id
+            LEFT JOIN Users t2 ON t0.profile_id = t2.id 
+        )`;
+
     const [tmp] = await sequelize.query(
-      `SELECT 
-        COUNT(*) 
-      FROM(SELECT
-        t0.*,
-        CONCAT(t1.first_name, ' ', t1.last_name) AS payer_name,
-        t2.name AS project_name,
-        CONCAT(t2.first_name, ' ', t2.last_name) AS receiver_name
-      FROM
-        (
-        SELECT
-          user_id, project_id,
-          MIN( createdAt) AS start_date,
-          MAX( createdAt) AS end_date,
-          SUM( amount ) AS amount,
-          SUM( website_amount ) AS website_amount,
-          SUM( amount - website_amount )* 0.05 AS tip_amount,
-          SUM( payout_amount ) AS payout_amount 
-      FROM
-        Finances` + where + `
-    GROUP BY user_id, project_id) t0
-      LEFT JOIN Users t1 ON t0.user_id = t1.id
-      LEFT JOIN 
-        (SELECT 
-            Projects.id, 
-            Projects.name, 
-            userId, 
-            Users.first_name, 
-            Users.last_name 
-          FROM Projects 
-          LEFT JOIN Users ON Projects.userId = Users.id) t2 ON t0.project_id = t2.id) tt0`
-      + where_t0);
+      `SELECT COUNT(*) FROM(` + subquery + `) tt0` + where_t0);
 
     console.log("------------ total -----------");
     const total = tmp[0].total;
     console.log(tmp);
 
     const [rows] = await sequelize.query(
-      `SELECT * FROM(SELECT
-          t0.*,
-          CONCAT(t1.first_name, ' ', t1.last_name) AS payer_name,
-          t2.name AS project_name,
-          CONCAT(t2.first_name, ' ', t2.last_name) AS receiver_name
-        FROM
-          (
-          SELECT
-            user_id, project_id,
-            MIN( createdAt) AS start_date,
-            MAX( createdAt) AS end_date,
-            SUM( amount ) AS amount,
-            SUM( website_amount ) AS website_amount,
-            SUM( amount - website_amount )* 0.05 AS tip_amount,
-            SUM( payout_amount ) AS payout_amount 
-        FROM
-          Finances
-        ` + where +
-      `GROUP BY user_id, project_id) t0
-        LEFT JOIN Users t1 ON t0.user_id = t1.id
-        LEFT JOIN 
-          (SELECT 
-              Projects.id, 
-              Projects.name, 
-              userId, 
-              Users.first_name, 
-              Users.last_name 
-            FROM Projects 
-            LEFT JOIN Users ON Projects.userId = Users.id) t2 ON t0.project_id = t2.id) tt0`
-      + where_t0 + " " + order + " LIMIT " + offset + ", " + pageLimit);
+      `SELECT * FROM(` + subquery + `) tt0` + where_t0 + " " + order + " LIMIT " + offset + ", " + pageLimit);
 
     return res.status(200).json({
       responseCode: 200,
