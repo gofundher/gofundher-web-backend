@@ -81,74 +81,75 @@ const getDonations = async (req, res) => {
       limit: pageLimit,
     });
     */
-    const subquery = `SELECT
-   Finance.id,
-   Finance.user_id,
-   Finance.full_name,
-   Finance.email,
-   Finance.phone,
-   Finance.is_info_sharable,
-   Finance.checkout_id,
-   Finance.is_recurring,
-   Finance.next_donation_date,
-   Finance.website_amount,
-   Finance.tip_percentage,
-   ( Finance.amount - Finance.website_amount ) * 0.05 AS tip_amount,
-   Finance.donation_id,
-   Finance.project_id,
-   Finance.amount,
-   Finance.payout_amount,
-   Finance.transferred_amount,
-   Finance.transferred_via,
-   Finance.transfer_id,
-   Finance.reward_id,
-   Finance.status,
-   Finance.profile_id,
-   Finance.direct_donation,
-   Finance.payment_by,
-   Finance.payment_status,
-   Finance.payout_succeed,
-   Finance.note,
-   Finance.webhook_event_id,
-   Finance.comment,
-   Finance.createdAt,
-   Finance.updatedAt,
-   
-   IF( Finance.project_id IS NULL, ProfileUsers.id, Project.u_id ) AS fundraiser_id,
-   IF( Finance.project_id IS NULL, ProfileUsers.first_name, Project.u_first_name ) AS fundraiser_first_name,
-   IF( Finance.project_id IS NULL, ProfileUsers.last_name, Project.u_last_name ) AS fundraiser_last_name,
-   IF( Finance.project_id IS NULL, ProfileUsers.email, Project.u_email ) AS fundraiser_email,
-   IF( Finance.project_id IS NULL, ProfileUsers.profileUrl, Project.u_profileUrl ) AS fundraiser_profileUrl,
-   IF( Finance.project_id IS NULL, ProfileUsers.is_acc_updated, Project.u_is_acc_updated ) AS fundraiser_is_acc_updated,
-   IF( Finance.project_id IS NULL, ProfileUsers.is_paypal_connected, Project.u_is_paypal_connected ) AS fundraiser_is_paypal_connected,
-   
-   Project.id AS 'Project.id',
-   Project.name AS 'Project.name',
-   Project.url AS 'Project.url',
-   User.id AS 'User.id',
-   User.first_name AS 'User.first_name',
-   User.last_name AS 'User.last_name',
-   User.profileUrl AS 'User.profileUrl' 
- FROM
-   Finances AS Finance
-   LEFT JOIN (
-   SELECT
-     tt0.id,
-     tt0.name,
-     tt0.url,
-     tt1.id AS u_id,
-     tt1.first_name AS u_first_name,
-     tt1.last_name AS u_last_name,
-     tt1.email AS u_email,
-     tt1.profileUrl AS u_profileUrl,
-     tt1.is_acc_updated AS u_is_acc_updated,
-     tt1.is_paypal_connected  AS u_is_paypal_connected
-   FROM
-     Projects AS tt0
-     LEFT JOIN Users AS tt1 ON tt0.userId = tt1.id 
-   ) AS Project ON Finance.project_id = Project.id
-   LEFT JOIN Users AS User ON Finance.user_id = User.id
-   LEFT JOIN Users AS ProfileUsers ON Finance.profile_id = ProfileUsers.id `;
+    const subquery =
+      `SELECT
+      Finance.id,
+      Finance.user_id,
+      Finance.full_name,
+      Finance.email,
+      Finance.phone,
+      Finance.is_info_sharable,
+      Finance.checkout_id,
+      Finance.is_recurring,
+      Finance.next_donation_date,
+      Finance.website_amount,
+      Finance.tip_percentage,
+      ( Finance.amount - Finance.website_amount ) * 0.05 AS tip_amount,
+      Finance.donation_id,
+      Finance.project_id,
+      Finance.amount,
+      Finance.payout_amount,
+      Finance.transferred_amount,
+      Finance.transferred_via,
+      Finance.transfer_id,
+      Finance.reward_id,
+      Finance.status,
+      Finance.profile_id,
+      Finance.direct_donation,
+      Finance.payment_by,
+      Finance.payment_status,
+      Finance.payout_succeed,
+      Finance.note,
+      Finance.webhook_event_id,
+      Finance.comment,
+      Finance.createdAt,
+      Finance.updatedAt,
+      
+      IF( Finance.project_id IS NULL, ProfileUsers.id, Project.u_id ) AS fundraiser_id,
+      IF( Finance.project_id IS NULL, ProfileUsers.first_name, Project.u_first_name ) AS fundraiser_first_name,
+      IF( Finance.project_id IS NULL, ProfileUsers.last_name, Project.u_last_name ) AS fundraiser_last_name,
+      IF( Finance.project_id IS NULL, ProfileUsers.email, Project.u_email ) AS fundraiser_email,
+      IF( Finance.project_id IS NULL, ProfileUsers.profileUrl, Project.u_profileUrl ) AS fundraiser_profileUrl,
+      IF( Finance.project_id IS NULL, ProfileUsers.is_acc_updated, Project.u_is_acc_updated ) AS fundraiser_is_acc_updated,
+      IF( Finance.project_id IS NULL, ProfileUsers.is_paypal_connected, Project.u_is_paypal_connected ) AS fundraiser_is_paypal_connected,
+      
+      Project.id AS 'Project.id',
+      Project.name AS 'Project.name',
+      Project.url AS 'Project.url',
+      User.id AS 'User.id',
+      User.first_name AS 'User.first_name',
+      User.last_name AS 'User.last_name',
+      User.profileUrl AS 'User.profileUrl' 
+    FROM
+      Finances AS Finance
+      LEFT JOIN (
+      SELECT
+        tt0.id,
+        tt0.name,
+        tt0.url,
+        tt1.id AS u_id,
+        tt1.first_name AS u_first_name,
+        tt1.last_name AS u_last_name,
+        tt1.email AS u_email,
+        tt1.profileUrl AS u_profileUrl,
+        tt1.is_acc_updated AS u_is_acc_updated,
+        tt1.is_paypal_connected  AS u_is_paypal_connected
+      FROM
+        Projects AS tt0
+        LEFT JOIN Users AS tt1 ON tt0.userId = tt1.id 
+      ) AS Project ON Finance.project_id = Project.id
+      LEFT JOIN Users AS User ON Finance.user_id = User.id
+      LEFT JOIN Users AS ProfileUsers ON Finance.profile_id = ProfileUsers.id `;
 
     const [tmp] = await sequelize.query(
       `SELECT
@@ -160,7 +161,7 @@ const getDonations = async (req, res) => {
     console.log(tmp[0].total);
 
     const [rows] = await sequelize.query(
-      `SELECT *  FROM (` + subquery + `) t0 ` + where + " " + order + " LIMIT " + offset + ", " + pageLimit);
+      `SELECT t0.* FROM (` + subquery + `) t0 ` + where + " " + order + " LIMIT " + offset + ", " + pageLimit);
 
     let data = { count: total, rows: rows };
     let result = [];
@@ -179,6 +180,12 @@ const getDonations = async (req, res) => {
             },
           });
           */
+
+          let donation = await Donation.findOne({
+            where: {
+              user_id: element.fundraiser_id,
+            },
+          });
           result.push({
             ...element,
             fundRaiserInfo: {
@@ -188,7 +195,8 @@ const getDonations = async (req, res) => {
               email: element['fundraiser_email'],
               profileUrl: element['fundraiser_profileUrl'],
               is_acc_updated: element['fundraiser_is_acc_updated'],
-              is_paypal_connected: element['fundraiser_is_paypal_connected']
+              is_paypal_connected: element['fundraiser_is_paypal_connected'],
+              Donation: donation
             },
             Project: {
               id: element['Project.id'],

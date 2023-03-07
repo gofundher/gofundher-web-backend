@@ -826,7 +826,7 @@ const getDashboard = async (req, res) => {
       "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEARWEEK(createdAt) = YEARWEEK(NOW())");
 
     const [monthEarning] = await sequelize.query(
-      "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT(createdAt, '%Y-%m') = YEARWEEK(NOW(), '%Y-%m')");
+      "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND DATE_FORMAT(createdAt, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')");
 
     const [yearEarning] = await sequelize.query(
       "SELECT SUM(website_amount) AS total_tip, SUM(amount-website_amount)*0.05 as total_fee FROM Finances WHERE payment_status='Completed' AND YEAR(createdAt) = YEAR(NOW())");
