@@ -3,6 +3,6 @@
     "serverURL": "http://192.249.123.124:8014"
   },
   "production": {
-    "serverURL": "https://gofundher.com"
+    "serverURL": "https://cofundher.com"
   }
 }

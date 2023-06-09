@@ -361,10 +361,10 @@ const createAnonymous = async () => {
     let email = '';
 
     if (userRec.length === 0) {
-      email = 'anonymous' + lastName + '@gofundher.com';
+      email = 'anonymous' + lastName + '@cofundher.com';
     } else {
       lastName = parseInt(userRec[0].dataValues.last_name) + Math.round(Math.random() * 100000) || '';
-      email = 'anonymous' + lastName + '@gofundher.com';
+      email = 'anonymous' + lastName + '@cofundher.com';
     }
 
     let anonymousUserData = await User.build({
@@ -887,7 +887,7 @@ const updateProjectFund = async project_id => {
     if (totalUser && totalAmount) {
       await Project.update({
         total_contributors: totalUser.count,
-        total_pledged: totalAmount.dataValues.totalAmount,
+        total_pledged: totalAmount.dataValues.totalAmount == null ? 0 : totalAmount.dataValues.totalAmount,
         percentage: collectedPercentage,
       }, {
         where: {
@@ -1894,6 +1894,7 @@ const createPaypalOrder = async (req, res) => {
       customId: donationId,
       platformFee: tipAmount
     });
+    console.log('-----------------paypal responded order----------', orderId);
   } else {
     orderId = await getEmailPaypalOrderId({
       amount,

@@ -332,7 +332,7 @@ const stripeAccountUpdate = async (data, res) => {
         },
         business_profile: {
           mcc: "7399",
-          url: "https://www.gofundher.com/",
+          url: "https://www.cofundher.com/",
         },
       },
       async function (err, success) {

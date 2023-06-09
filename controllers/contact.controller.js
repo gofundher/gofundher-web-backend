@@ -9,8 +9,8 @@ const createContact = async (req, res) => {
       res.send(400).send({ success: false, message: "Please fill all fields" });
     } else {
       await new emailSender().sendMail(
-        ['info@gofundher.com'],
-        "[Gofundher] Contact us query",
+        ['info@cofundher.com'],
+        "[Cofundher] Contact us query",
         " ",
         "GoFundHer",
         " ",

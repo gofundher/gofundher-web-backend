@@ -410,11 +410,11 @@ const stripeCustomerCreate = async (userData, accountData) => {
     country: "US",
     email: userData.email,
     business_type: "individual",
-    // statement_descriptor: "Donation-GoFundHer.com",
+    // statement_descriptor: "Donation-CoFundHer.com",
     // requested_capabilities: ['card_payments', 'transfers'],
     business_profile: {
       mcc: "7399",
-      url: "https://www.gofundher.com/",
+      url: "https://www.cofundher.com/",
     },
   });
   if (createResult && createResult.id) {
@@ -589,7 +589,7 @@ passport.use(
   new LinkedInStrategy({
       clientID: linkedinClientID,
       clientSecret: linkedinClientSecret,
-      callbackURL: "https://gofundher.com/callback",
+      callbackURL: "https://cofundher.com/callback",
       scope: ["r_emailaddress", "r_liteprofile"],
     },
     socialSignup
@@ -601,7 +601,7 @@ passport.use(
   new GoogleStrategy({
       clientID: googleClientID,
       clientSecret: googleClientSecret,
-      callbackURL: "https://gofundher.com/auth/google/callback",
+      callbackURL: "https://cofundher.com/auth/google/callback",
       passReqToCallback: true,
     },
     socialSignup
@@ -3093,7 +3093,7 @@ const updateCapabilities = async (req, res) => {
           },
           business_profile: {
             mcc: "7399",
-            url: "https://www.gofundher.com/",
+            url: "https://www.cofundher.com/",
           },
         });
     }

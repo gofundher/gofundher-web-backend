@@ -122,7 +122,7 @@ app.get("/social-share", async function (req, res) {
   let uri;
   if (image) {
     uri =
-      "https://gofundher.com/social-share?title=" +
+      "https://cofundher.com/social-share?title=" +
       req.query.title +
       "&description=" +
       req.query.description +

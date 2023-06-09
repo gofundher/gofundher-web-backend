@@ -12,7 +12,7 @@ const createProduct = async () => {
       "type": "SERVICE",
     "category": "SOFTWARE",
       image_url: "https://example.com/streaming.jpg",
-      home_url: "https://gofundher.com",
+      home_url: "https://cofundher.com",
     }
     const productResponse = await paypalPostRequest('/v1/catalogs/products', { payload: JSON.stringify(product) });
 
@@ -30,6 +30,7 @@ const PAYPAL_HEADERS = {
 
 const paypalPostRequest = async (path, { payload }) => {
   const token = await getAccessToken();
+  console.log('--------------paypal access token--------', token);
   return unirest.post(`${PAYPAL_BUSINESS_API_URL}${path}`)
           .headers({
             ...PAYPAL_HEADERS,
@@ -75,7 +76,10 @@ const getPaypalOrderId = async ({ amount, merchantId, customId, platformFee }) =
     }]
   }
 
+  console.log('-----------paypal order request payload -----------', payload);
   const response = await paypalPostRequest('/v2/checkout/orders', { payload });
+
+  console.log('-----------paypal response------------', response.body);
 
   return response.body.id;
 }
@@ -107,7 +111,7 @@ const getPartnersReferralPayload = async ({ userId }) => {
   const payload = {
     "tracking_id": `${userId}`,
     "partner_config_override": {
-      "partner_logo_url": "https://gofundher.com/assets/img/gofundher-logo-new.png",
+      "partner_logo_url": "https://cofundher.com/assets/img/gofundher-logo-new.png",
       "return_url": `${BackendUrl}/api/payment/paypal/onboarding-return-url`,
       "return_url_description": "the url to return the merchant after the paypal onboarding process.",
       // "action_renewal_url": `${FrontendUrl}/get-paid-now`,
@@ -289,6 +293,8 @@ const getBillingAgreementDetail = async (subscriptionID) => {
 }
 
 const getAccessToken = async () => {
+  console.log("-----------------------------------------------");
+  console.log(`${PAYPAL_BUSINESS_API_URL}/v1/oauth2/token`);
   const {body: {access_token}} = await unirest.post(`${PAYPAL_BUSINESS_API_URL}/v1/oauth2/token`)
   .headers({'Accept': 'application/json', 'Accept-Language': 'en_US'})
   .auth({

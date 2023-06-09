@@ -12,7 +12,7 @@ module.exports = function(app) {
     let uri;
     if (image) {
       uri =
-        "https://gofundher.com/facebook-share?title=" +
+        "https://cofundher.com/facebook-share?title=" +
         req.query.title +
         "&description=" +
         req.query.description +
