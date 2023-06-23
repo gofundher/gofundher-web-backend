@@ -57,7 +57,7 @@ router.post('/stripe/webhook', authentication.authorize, paymentController.strip
 router.post('/paypal/create-onboarding-link', authentication.authorize, paymentController.createPaypalOnboardingLink);
 
 // create paypal order link
-router.post('/paypal/create-order', apiLimiter, authentication.authorize, paymentController.createPaypalOrder);
+router.post('/paypal/create-order', /*apiLimiter,*/ authentication.authorize, paymentController.createPaypalOrder);
 
 // handle paypal webhooks
 router.post('/paypal/webhook', authentication.authorize, paymentController.paypalWebhookHandler);
