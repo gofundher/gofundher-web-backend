@@ -14,6 +14,7 @@ const {
   Donation,
   Comment,
   Update,
+  sequelize
 } = require('../models');
 const { sendNewUpdatesNotificationToSponsors } = require('../helpers/emails');
 
@@ -211,7 +212,7 @@ const showProjects = async (req, res) => {
       }
     }
 
-    const projectData = await Project.findAndCountAll({
+    let projectData = await Project.findAndCountAll({
       // where: condition,
       where: [{ ...condition }],
       limit: limit,
@@ -266,6 +267,20 @@ const showProjects = async (req, res) => {
     });
     if (projectData) {
       let pages = Math.ceil(parseInt(projectData.count) / limit); // total number of pages for table
+
+      for(let i=0; i<projectData.rows.length ; i++) {
+        const [project_total_amount] = await sequelize.query(
+          `SELECT count(id) count, sum(amount) total_amount, sum(website_amount) website_amount FROM finances WHERE project_id=${projectData.rows[i].id} AND payment_status="Completed"`
+        );
+  
+        const total_amount = project_total_amount[0].total_amount;
+        const website_amount = project_total_amount[0].website_amount;
+        
+        projectData.rows[i].total_contributors = project_total_amount[0].count;
+        projectData.rows[i].total_pledged = total_amount ? (total_amount - website_amount) : 0;
+        projectData.rows[i].percentage = total_amount ? (total_amount - website_amount)*100/projectData.rows[i].amount : 0;
+      }
+
       return res.status(200).json({
         responseCode: 200,
         message: 'Sponsor Page fetched successfully!',
