@@ -270,7 +270,7 @@ const showProjects = async (req, res) => {
 
       for(let i=0; i<projectData.rows.length ; i++) {
         const [project_total_amount] = await sequelize.query(
-          `SELECT count(id) count, sum(amount) total_amount, sum(website_amount) website_amount FROM finances WHERE project_id=${projectData.rows[i].id} AND payment_status="Completed"`
+          `SELECT count(id) count, sum(amount) total_amount, sum(website_amount) website_amount FROM Finances WHERE project_id=${projectData.rows[i].id} AND payment_status="Completed"`
         );
   
         const total_amount = project_total_amount[0].total_amount;
