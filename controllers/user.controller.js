@@ -8,6 +8,7 @@ const {
   Finance,
   Project,
   RecurringDonars,
+  sequelize
 } = require("../models");
 const {
   secret,
@@ -417,6 +418,8 @@ const stripeCustomerCreate = async (userData, accountData) => {
       url: "https://www.gofundher.com/",
     },
   });
+
+  console.log("create result", createResult);
   if (createResult && createResult.id) {
     if (accountData && accountData.id) {
       await Donation.update({
@@ -2732,7 +2735,7 @@ const getDetailsByURL = async (req, res) => {
         success: false,
       });
     }
-
+    
     var projectInfo = await Project.findOne({
       where: {
         url: data.url,
@@ -2753,8 +2756,21 @@ const getDetailsByURL = async (req, res) => {
         ],
       }, ],
     });
+
     if (projectInfo) {
-      const projectData = projectInfo.dataValues;
+      let projectData = projectInfo.dataValues;
+
+      const [project_total_amount] = await sequelize.query(
+        `SELECT count(id) count, sum(amount) total_amount, sum(website_amount) website_amount FROM finances WHERE project_id=${projectData.id} AND payment_status="Completed"`
+      );
+
+      const total_amount = project_total_amount[0].total_amount;
+      const website_amount = project_total_amount[0].website_amount;
+      
+      projectData.total_contributors = project_total_amount[0].count;
+      projectData.total_pledged = total_amount ? (total_amount - website_amount) : 0;
+      projectData.percentage = total_amount ? (total_amount - website_amount)*100/projectData.amount : 0;
+
       return res.status(200).json({
         responseCode: 200,
         message: "Project info fetched successfully!",
@@ -3456,6 +3472,7 @@ const generateAccountLink = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(400).json({
       responseCode: 400,
       message: "Unable to generate account link",
