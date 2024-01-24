@@ -27,7 +27,6 @@ Using Putty or XShell to connect AWS EC2 instance that the project will be deplo
 ## Copy build folder from GoFundHer-web-admin
 - copy build folder from [GoFundHer-web-admin](https://github.com/gofundher/gofundher-web-admin "GoFundHer-web-admin") and rename it to admin
 
-
 ## Database
 - Create a database named "gofundher" in MySQL Server
 - Backup Database
