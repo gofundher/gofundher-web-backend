@@ -122,7 +122,7 @@ app.get("/social-share", async function (req, res) {
   let uri;
   if (image) {
     uri =
-      "https://gofundher.com/social-share?title=" +
+      "https://cashfundher.com/social-share?title=" +
       req.query.title +
       "&description=" +
       req.query.description +
@@ -168,7 +168,7 @@ app.get("/social-share", async function (req, res) {
 app.get("/api/fetch-instagram-feed", async function (req, res) {
   let instagramReq = unirest(
     "GET",
-    "https://www.instagram.com/_gofundher/?__a=1"
+    "https://www.instagram.com/_cashfundher/?__a=1"
   );
 
   instagramReq.headers({

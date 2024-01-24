@@ -252,7 +252,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             [userData.email],
             'Donation Unsubscription',
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeUser', {
@@ -268,7 +268,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             [userData.email],
             'Donation Unsubscription ',
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeProject', {
@@ -292,7 +292,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             [fundRaiser.email],
             'Donation Unsubscription',
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeFundraiser', {
@@ -308,7 +308,7 @@ const UnSubscribeRecurringPayment = async (req, res) => {
             [fundRaiser.dataValues.email],
             'Donation Unsubscription ',
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             // project.User ? project.User.email : "",
             ' ',
             'unsubscribeProjectOwner', {
@@ -361,10 +361,10 @@ const createAnonymous = async () => {
     let email = '';
 
     if (userRec.length === 0) {
-      email = 'anonymous' + lastName + '@gofundher.com';
+      email = 'anonymous' + lastName + '@cashfundher.com';
     } else {
       lastName = parseInt(userRec[0].dataValues.last_name) + Math.round(Math.random() * 100000) || '';
-      email = 'anonymous' + lastName + '@gofundher.com';
+      email = 'anonymous' + lastName + '@cashfundher.com';
     }
 
     let anonymousUserData = await User.build({
@@ -560,7 +560,7 @@ const recurringChargeWebhook = async (req, res) => {
           'Thank you for Donating! ' :
           'Donation Renewal',
         ' ',
-        'GoFundHer',
+        'CashFundHer',
         '',
         // ccUserData ? ccUserData.email : "",
         data.billing_info.cycle_executions[0].cycles_completed === 0 ?
@@ -583,7 +583,7 @@ const recurringChargeWebhook = async (req, res) => {
           'Thank you for Donating! ' :
           'Donation Renewal',
         ' ',
-        'GoFundHer',
+        'CashFundHer',
         '',
         // ccUserData ? ccUserData.email : "",
         data.billing_info.cycle_executions[0].cycles_completed === 0 ?
@@ -607,7 +607,7 @@ const recurringChargeWebhook = async (req, res) => {
       ccUserData ? [ccUserData.email] : [],
       'You have received donation',
       ' ',
-      'GoFundHer',
+      'CashFundHer',
       '',
       // ccUserData ? ccUserData.email : "",
       'ReceivedMonthlyUser', {
@@ -630,7 +630,7 @@ const recurringChargeWebhook = async (req, res) => {
       ccUserData ? [ccUserData.email] : [],
       'You have received donation',
       ' ',
-      'GoFundHer',
+      'CashFundHer',
       '',
       // ccUserData ? ccUserData.email : "",
       'ReceivedMonthlyProject', {
@@ -740,7 +740,7 @@ const updatePaymentStatus = async (
             [userData.email],
             'Thank you for Donating! ',
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             '',
             // ccUserData.email,
             is_recurring ? 'monthlyUser' : 'oneTimeUser', {
@@ -761,7 +761,7 @@ const updatePaymentStatus = async (
             [userData.email],
             'Thank you for Donating! ',
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             '',
             // projectData.User ? projectData.User.email : ccUserData.email,
             is_recurring ? 'monthlyProject' : 'oneTimeProject', {
@@ -785,7 +785,7 @@ const updatePaymentStatus = async (
           ccUserData ? [ccUserData.email] : [],
           'You have received donation',
           ' ',
-          'GoFundHer',
+          'CashFundHer',
           '',
           // ccUserData.email,
           is_recurring ? 'ReceivedMonthlyUser' : 'ReceivedOnetimeUser', {
@@ -813,7 +813,7 @@ const updatePaymentStatus = async (
           [ccUserData.email],
           'You have received donation',
           ' ',
-          'GoFundHer',
+          'CashFundHer',
           '',
           // projectData.User ? projectData.User.email : ccUserData.email,
           is_recurring ? 'ReceivedMonthlyProject' : 'ReceivedOnetimeProject', {
@@ -1408,7 +1408,7 @@ const sendPaymentEmails = async ({
       [donorEmail],
       'Thank you for Donating! ',
       ' ',
-      'GoFundHer',
+      'CashFundHer',
       '',
       isSubscription ? 'monthlyProject' : 'oneTimeProject',
       emailData,
@@ -1442,7 +1442,7 @@ const sendPaymentEmails = async ({
       [receiverUser.email],
       'You have received donation',
       ' ',
-      'GoFundHer',
+      'CashFundHer',
       '',
       receiverEmailTemplate,
       emailData2,

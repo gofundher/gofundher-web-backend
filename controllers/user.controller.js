@@ -281,9 +281,9 @@ const userSignup = async (req, res) => {
             );
             new emailSender().sendMail(
               [userRes.dataValues.email],
-              "Your GoFundHer account is ready",
+              "Your CashFundHer account is ready",
               " ",
-              "GoFundHer",
+              "CashFundHer",
               // project.User ? project.User.email : "",
               " ",
               "registration", {
@@ -384,7 +384,7 @@ const userSignin = async (req, res) => {
       responseCode: 200,
       data: userRec,
       token: token,
-      message: "Welcome to gofundher ",
+      message: "Welcome to cashfundher ",
       success: true,
     });
   } catch (error) {
@@ -411,11 +411,11 @@ const stripeCustomerCreate = async (userData, accountData) => {
     country: "US",
     email: userData.email,
     business_type: "individual",
-    // statement_descriptor: "Donation-GoFundHer.com",
+    // statement_descriptor: "Donation-CashFundHer.com",
     // requested_capabilities: ['card_payments', 'transfers'],
     business_profile: {
       mcc: "7399",
-      url: "https://www.gofundher.com/",
+      url: "https://www.cashfundher.com/",
     },
   });
 
@@ -546,9 +546,9 @@ const socialSignup = async (req, accessToken, refreshToken, profile, done) => {
     );
     new emailSender().sendMail(
       [users.email],
-      "Your GoFundHer account is ready",
+      "Your CashFundHer account is ready",
       " ",
-      "GoFundHer",
+      "CashFundHer",
       // project.User ? project.User.email : "",
       " ",
       "registration", {
@@ -592,7 +592,7 @@ passport.use(
   new LinkedInStrategy({
       clientID: linkedinClientID,
       clientSecret: linkedinClientSecret,
-      callbackURL: "https://gofundher.com/callback",
+      callbackURL: "https://cashfundher.com/callback",
       scope: ["r_emailaddress", "r_liteprofile"],
     },
     socialSignup
@@ -604,7 +604,7 @@ passport.use(
   new GoogleStrategy({
       clientID: googleClientID,
       clientSecret: googleClientSecret,
-      callbackURL: "https://gofundher.com/auth/google/callback",
+      callbackURL: "https://cashfundher.com/auth/google/callback",
       passReqToCallback: true,
     },
     socialSignup
@@ -813,7 +813,7 @@ const userForgotPassword = async (req, res) => {
       [userData.email],
       "Reset Password Request",
       "",
-      "GoFundHer",
+      "CashFundHer",
       "",
       "forgetPassword", {
         first_name: userData.first_name,
@@ -3109,7 +3109,7 @@ const updateCapabilities = async (req, res) => {
           },
           business_profile: {
             mcc: "7399",
-            url: "https://www.gofundher.com/",
+            url: "https://www.cashfundher.com/",
           },
         });
     }
@@ -4974,7 +4974,7 @@ const chargeEnabled = async (req, res) => {
             [userData.email],
             "Bank account verification success",
             "",
-            "GoFundHer",
+            "CashFundHer",
             "",
             "bankAccountVerification", {
               first_name: userData.first_name,

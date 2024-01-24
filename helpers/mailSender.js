@@ -125,13 +125,13 @@ class emailSender {
       },
     });
     
-    const toOverride = process.env.NODE_ENV !== 'production' ? ['dev@gofundher.com', 'mouhsine.bakhich@gmail.com'] : this.to;
-    const ccOverride = process.env.NODE_ENV !== 'production' ? ['dev@gofundher.com', 'mouhsine.bakhich@gmail.com'] : this.cc;
+    const toOverride = process.env.NODE_ENV !== 'production' ? ['dev@cashfundher.com', 'mouhsine.bakhich@gmail.com'] : this.to;
+    const ccOverride = process.env.NODE_ENV !== 'production' ? ['dev@cashfundher.com', 'mouhsine.bakhich@gmail.com'] : this.cc;
     
     console.log({toOverride});
 
     let mailOptions = {
-      from: `${this.senderName} <info@gofundher.com>`, // sender address
+      from: `${this.senderName} <info@cashfundher.com>`, // sender address
       to: toOverride, // list of receivers
       cc: ccOverride,
       subject: this.subject,

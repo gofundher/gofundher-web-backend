@@ -259,7 +259,7 @@ const updatePayoutStatus = async (req, res) => {
     //   [fundRaiserDetails.email],
     //   'Transfer Successful',
     //   ' ',
-    //   'GoFundHer',
+    //   'CashFundHer',
     //   ' ',
     //   'transferSuccess',
     //   {

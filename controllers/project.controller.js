@@ -1224,7 +1224,7 @@ const addComment = async (req, res) => {
           [userData.email],
           `You have a new comment on your sponsor page ${project.name}`,
           ' ',
-          'GoFundHer',
+          'CashFundHer',
           // project.User ? project.User.email : "",
           ' ',
           'projectNewComment', {
