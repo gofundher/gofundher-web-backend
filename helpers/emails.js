@@ -74,7 +74,7 @@ module.exports.sendNewUpdatesNotificationToSponsors = async (projectId) => {
             [sponsor.email],
             `${project.name} posted new updates`,
             ' ',
-            'GoFundHer',
+            'CashFundHer',
             ' ',
             'projectNewUpdates', {
                 sponsorName: sponsor.full_name,

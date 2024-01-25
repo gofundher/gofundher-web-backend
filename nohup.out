@@ -1,5 +1,5 @@
 
-> gofundher-server@0.0.0 build
+> cashfundher-server@0.0.0 build
 > NODE_ENV=production PORT=8000 node ./bin/www
 
 dotenv-flow: "STRIPE_PUBLISHABLE_KEY" is already defined in `process.env` and will not be overwritten
@@ -39,34 +39,34 @@ dotenv-flow: "PAYPAL_BUSINESS_PRODUCT_ID" is already defined in `process.env` an
 [bugsnag] Loaded!
 port 8000
 Executing (default): CREATE TABLE IF NOT EXISTS `Admins` (`id` INTEGER NOT NULL auto_increment , `first_name` VARCHAR(255), `last_name` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Admins` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Admins` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Users` (`id` INTEGER NOT NULL auto_increment , `first_name` VARCHAR(255), `last_name` VARCHAR(255), `email` VARCHAR(255) UNIQUE, `password` VARCHAR(255), `isActive` TINYINT(1), `street` VARCHAR(255), `city` VARCHAR(255), `state` VARCHAR(255), `zip` VARCHAR(255), `phone` VARCHAR(255), `personal_website` VARCHAR(255), `facebook` VARCHAR(255), `twitter` VARCHAR(255), `instagram` VARCHAR(255), `linkedin` VARCHAR(255), `youtube` VARCHAR(255), `tiktok` VARCHAR(255), `youtube_video_link` VARCHAR(255), `whatsapp` VARCHAR(255), `twitch` VARCHAR(255), `bio` VARCHAR(255), `is_receive_news` TINYINT(1), `avatar` VARCHAR(255), `is_social` TINYINT(1), `is_verified` TINYINT(1) DEFAULT 0, `is_acc_updated` TINYINT(1) DEFAULT 0, `is_paypal_connected` TINYINT(1) DEFAULT 0, `forget_token` VARCHAR(255), `profileUrl` VARCHAR(255), `last_login` DATETIME, `next_donation_date` DATETIME, `is_recurring` TINYINT(1), `customer_id` VARCHAR(255), `plan_id` VARCHAR(255), `anonymousUser` TINYINT(1), `isFeatured` TINYINT(1), `is_featured_second` TINYINT(1), `show_in_profile_list` TINYINT(1) DEFAULT 1, `is_newsletter_subscribed` TINYINT(1), `is_deleted` TINYINT(1) DEFAULT 0, `rewards` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Users` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Users` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Projects` (`id` INTEGER NOT NULL auto_increment , `name` VARCHAR(255), `description` TEXT, `url` VARCHAR(255) UNIQUE, `punch_line` VARCHAR(255), `category` VARCHAR(255), `video` VARCHAR(255), `amount` FLOAT(10,2), `deadline` DATETIME, `userId` INTEGER, `location` VARCHAR(255), `status` ENUM('draft', 'live'), `project_location` VARCHAR(255), `percentage` FLOAT(10,2), `total_contributors` BIGINT(11), `total_pledged` FLOAT(10,2), `gallery` TEXT, `featured_image` TEXT, `thumbnail_image` TEXT, `reward` TEXT, `faq` TEXT, `plan_id` VARCHAR(255), `isFeatured` TINYINT(1), `is_deleted` TINYINT(1) DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Projects` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Projects` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Comments` (`id` INTEGER NOT NULL auto_increment , `comment` TEXT, `user_id` INTEGER, `email` VARCHAR(255), `user_Name` VARCHAR(255), `project_id` INTEGER, `parent_id` INTEGER, `status` TINYINT(1) DEFAULT 1, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Comments` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Comments` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `ContactFormInfos` (`id` INTEGER NOT NULL auto_increment , `name` VARCHAR(255), `email` VARCHAR(255), `message` TEXT, `user_id` VARCHAR(255), `status` ENUM('open', 'pending', 'completed'), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `ContactFormInfos` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `ContactFormInfos` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Donations` (`id` INTEGER NOT NULL auto_increment , `user_id` VARCHAR(255), `account_id` VARCHAR(255), `routing_number` VARCHAR(255), `account_number` VARCHAR(255), `date_of_birth` DATE, `ssn` VARCHAR(255), `address` VARCHAR(255), `city` VARCHAR(255), `phone` VARCHAR(255), `state` VARCHAR(255), `postal_code` VARCHAR(255), `identity_doc` VARCHAR(255), `error` TEXT, `paypal_email` VARCHAR(255), `paypal_mobile` VARCHAR(255), `paypal_photo_id` VARCHAR(255), `paypal_country` VARCHAR(255), `paypal_state` VARCHAR(255), `paypal_city` VARCHAR(255), `paypal_merchant_id` VARCHAR(255), `paypal_onboarding_status` ENUM('WAITING', 'ACTIVE', 'DECLINED'), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Donations` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Donations` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Finances` (`id` INTEGER NOT NULL auto_increment , `user_id` INTEGER, `full_name` VARCHAR(255), `email` VARCHAR(255), `phone` VARCHAR(255), `is_info_sharable` TINYINT(1), `checkout_id` VARCHAR(255), `is_recurring` TINYINT(1), `next_donation_date` DATETIME, `website_amount` DECIMAL(10,2), `tip_percentage` INTEGER, `donation_id` VARCHAR(255), `project_id` INTEGER, `amount` DECIMAL(10,2), `payout_amount` DECIMAL(10,2), `transferred_amount` DECIMAL(10,2), `transferred_via` ENUM('stripe', 'paypal', 'mobileNumber'), `transfer_id` VARCHAR(255), `reward_id` INTEGER, `status` TINYINT(1), `profile_id` INTEGER, `direct_donation` TINYINT(1), `payment_by` ENUM('stripe', 'paypal'), `payment_status` ENUM('Pending', 'Completed'), `payout_succeed` TINYINT(1), `note` TEXT, `webhook_event_id` VARCHAR(255), `comment` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`profile_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Finances` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Finances` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `NewsletterSubscribers` (`id` INTEGER NOT NULL auto_increment , `memeber_id` VARCHAR(255), `email` VARCHAR(255), `user_id` VARCHAR(255), `status` TINYINT(1), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `NewsletterSubscribers` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `NewsletterSubscribers` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `RecurringDonars` (`id` INTEGER NOT NULL auto_increment , `user_id` INTEGER, `full_name` VARCHAR(255), `email` VARCHAR(255), `phone` VARCHAR(255), `is_info_sharable` TINYINT(1), `project_id` INTEGER, `amount` DECIMAL(10,2), `tip_amount` DECIMAL(10,2), `tip_percentage` INTEGER, `subscribed_by` ENUM('stripe', 'paypal'), `subscription_id` VARCHAR(255), `next_donation_date` DATETIME, `is_recurring` TINYINT(1), `profile_id` INTEGER, `direct_donation` TINYINT(1), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `RecurringDonars` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `RecurringDonars` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Updates` (`id` INTEGER NOT NULL auto_increment , `youtube_link` TEXT, `image` TEXT, `content` TEXT, `project_id` INTEGER, `date` DATETIME, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`), FOREIGN KEY (`project_id`) REFERENCES `Projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Updates` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Updates` FROM `cashfundher`
 Executing (default): CREATE TABLE IF NOT EXISTS `Uploads` (`id` INTEGER NOT NULL auto_increment , `type` VARCHAR(255), `name` VARCHAR(255), `data` VARCHAR(255), `thumbnailImage` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB;
-Executing (default): SHOW INDEX FROM `Uploads` FROM `gofundher`
+Executing (default): SHOW INDEX FROM `Uploads` FROM `cashfundher`
 [0mGET /search [32m200 [0m9.546 ms - 2183[0m
 [0mGET /assets/css/bootstrap.min.css [36m304 [0m1.454 ms - -[0m
 [0mGET /assets/css/style.css [36m304 [0m0.565 ms - -[0m
 [0mGET /assets/css/responsive.css [36m304 [0m1.519 ms - -[0m
 [0mGET /static/css/main.937a0a30.css [36m304 [0m1.118 ms - -[0m
 [0mGET /static/js/main.9962c66c.js [36m304 [0m0.575 ms - -[0m
-[0mGET /assets/img/gofundher-logo-new.png [36m304 [0m0.745 ms - -[0m
+[0mGET /assets/img/cashfundher-logo-new.png [36m304 [0m0.745 ms - -[0m
 [0mGET /static/js/1830.78114ecd.chunk.js [36m304 [0m0.505 ms - -[0m
 [0mGET /static/js/4112.5c3474b1.chunk.js [36m304 [0m1.792 ms - -[0m
 [0mGET /static/js/7291.09d95e0d.chunk.js [36m304 [0m1.606 ms - -[0m
@@ -108,7 +108,7 @@ Executing (default): SELECT `Project`.`id`, `Project`.`name`, `Project`.`url`, `
 [0mGET /static/css/main.937a0a30.css [36m304 [0m1.204 ms - -[0m
 [0mGET /assets/css/responsive.css [36m304 [0m0.974 ms - -[0m
 [0mGET /static/js/main.9962c66c.js [36m304 [0m0.534 ms - -[0m
-[0mGET /assets/img/gofundher-logo-new.png [36m304 [0m0.590 ms - -[0m
+[0mGET /assets/img/cashfundher-logo-new.png [36m304 [0m0.590 ms - -[0m
 [0mGET /static/js/1830.78114ecd.chunk.js [36m304 [0m0.692 ms - -[0m
 [0mGET /static/js/4112.5c3474b1.chunk.js [36m304 [0m1.068 ms - -[0m
 [0mGET /static/js/7291.09d95e0d.chunk.js [36m304 [0m1.015 ms - -[0m

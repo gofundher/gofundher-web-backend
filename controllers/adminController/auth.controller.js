@@ -58,7 +58,7 @@ const adminLogin = async (req, res) => {
       responseCode: 200,
       data: userRec,
       token: token,
-      message: 'Welcome to the admin section of GoFundHer.',
+      message: 'Welcome to the admin section of CashFundHer.',
       success: true,
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 {
 	"apps": [
 		{
-			"name": "gofundher",
+			"name": "cashfundher",
 			"script": "npm run build",
 			"args": "start",
 			"watch": false
