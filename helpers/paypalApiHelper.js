@@ -8,11 +8,11 @@ const createProduct = async () => {
   try {
     const product = {
       name: 'Go Fund Her',
-      description: 'Donation For GoFundHer.com',
+      description: 'Donation For CashFundHer.com',
       "type": "SERVICE",
     "category": "SOFTWARE",
       image_url: "https://example.com/streaming.jpg",
-      home_url: "https://cofundher.com",
+      home_url: "https://cashfundher.com",
     }
     const productResponse = await paypalPostRequest('/v1/catalogs/products', { payload: JSON.stringify(product) });
 
@@ -111,7 +111,7 @@ const getPartnersReferralPayload = async ({ userId }) => {
   const payload = {
     "tracking_id": `${userId}`,
     "partner_config_override": {
-      "partner_logo_url": "https://cofundher.com/assets/img/gofundher-logo-new.png",
+      "partner_logo_url": "https://cashfundher.com/assets/img/cashfundher-logo-new.png",
       "return_url": `${BackendUrl}/api/payment/paypal/onboarding-return-url`,
       "return_url_description": "the url to return the merchant after the paypal onboarding process.",
       // "action_renewal_url": `${FrontendUrl}/get-paid-now`,
@@ -219,7 +219,7 @@ const createPayout = async (receiverEmail, receiverPhone ,amount, donationId) =>
         let data = {
           "sender_batch_header": {
               "email_subject": "You have a payout!",
-              "email_message": "You have received a payout from gofundher! Thanks for using our service!"
+              "email_message": "You have received a payout from cashfundher! Thanks for using our service!"
             },
             "items": [
               receiverEmail ? {

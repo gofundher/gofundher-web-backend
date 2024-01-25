@@ -278,7 +278,7 @@ const stripeAccountUpdate = async (data, res) => {
               [userData.email],
               "Bank account updated successfully",
               "",
-              "GoFundHer",
+              "CashFundHer",
               "",
               "bankAccountUpdated",
               {
@@ -332,7 +332,7 @@ const stripeAccountUpdate = async (data, res) => {
         },
         business_profile: {
           mcc: "7399",
-          url: "https://www.cofundher.com/",
+          url: "https://www.cashfundher.com/",
         },
       },
       async function (err, success) {
@@ -564,7 +564,7 @@ const updatePaypalAccountDetails = async (req, res) => {
         [userData.email],
         "Paypal account update success",
         "",
-        "GoFundHer",
+        "CashFundHer",
         "",
         "paypalTemplate",
         {
@@ -619,7 +619,7 @@ const onCapabilityStatusUpdation = async (req, res) => {
           [userData.email],
           "Bank account verification success",
           "",
-          "GoFundHer",
+          "CashFundHer",
           "",
           "bankAccountVerification",
           {

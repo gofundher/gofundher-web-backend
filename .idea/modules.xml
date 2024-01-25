@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/gofundher-web-backend.iml" filepath="$PROJECT_DIR$/.idea/gofundher-web-backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/cashfundher-web-backend.iml" filepath="$PROJECT_DIR$/.idea/cashfundher-web-backend.iml" />
     </modules>
   </component>
 </project>
