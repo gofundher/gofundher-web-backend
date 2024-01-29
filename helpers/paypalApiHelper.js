@@ -7,7 +7,7 @@ const { PAYPAL_BUSINESS_API_URL, PAYPAL_BUSINESS_CLIENT_ID, PAYPAL_BUSINESS_SECR
 const createProduct = async () => {
   try {
     const product = {
-      name: 'Go Fund Her',
+      name: 'Cash Fund Her',
       description: 'Donation For CashFundHer.com',
       "type": "SERVICE",
     "category": "SOFTWARE",
